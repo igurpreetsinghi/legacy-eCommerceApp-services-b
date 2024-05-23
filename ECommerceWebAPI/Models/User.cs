@@ -14,10 +14,12 @@ namespace ECommerceWebAPI.Models
 
         public string Email { get; set; }
 
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
 
-        public string? UserName { get; set; }
+        public string UserName { get; set; }
 
+        [Required]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
 
         public bool IsActive { get; set; }
@@ -26,9 +28,8 @@ namespace ECommerceWebAPI.Models
 
         public DateTime? UpdatedDate { get; set; }
 
-        [Required]
         public Address? Address { get; set; }
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
 
         [Required]
         public List<OrderItem>? OrderItems { get; set; }

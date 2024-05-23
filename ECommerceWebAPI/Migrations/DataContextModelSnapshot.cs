@@ -267,7 +267,9 @@ namespace ECommerceWebAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -363,7 +365,7 @@ namespace ECommerceWebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
@@ -374,8 +376,11 @@ namespace ECommerceWebAPI.Migrations
                     b.Property<Guid>("CustomerGuid")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("Email")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
@@ -389,6 +394,7 @@ namespace ECommerceWebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -488,9 +494,9 @@ namespace ECommerceWebAPI.Migrations
             modelBuilder.Entity("ECommerceWebAPI.Models.ProductReview", b =>
                 {
                     b.HasOne("ECommerceWebAPI.Models.Product", "Product")
-                        .WithMany()
+                        .WithMany("ProductReview")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.HasOne("ECommerceWebAPI.Models.User", "User")
@@ -528,8 +534,7 @@ namespace ECommerceWebAPI.Migrations
                     b.HasOne("ECommerceWebAPI.Models.Address", "Address")
                         .WithMany("User")
                         .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Address");
                 });
@@ -573,6 +578,8 @@ namespace ECommerceWebAPI.Migrations
                     b.Navigation("OrderItems");
 
                     b.Navigation("Pictures");
+
+                    b.Navigation("ProductReview");
 
                     b.Navigation("ShoppingCart");
                 });

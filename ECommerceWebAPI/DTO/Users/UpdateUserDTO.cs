@@ -9,7 +9,8 @@ namespace ECommerceWebAPI.DTO.Users
         [Required]
         public int RoleId { get; set; }
 
-        public string RoleName { get; set; }
+        public string? RoleName { get; set; }
+
 
         [Required]
         public string UserName { get; set; }

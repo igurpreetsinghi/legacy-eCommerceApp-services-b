@@ -90,14 +90,14 @@ namespace ECommerceWebAPI.Services
             return productDTO;
         }
 
-        public async Task<UpdateProductDTO> EditProduct(UpdateProductDTO editCategoryData)
+        public async Task<UpdateProductDTO> EditProduct(UpdateProductDTO editProductData)
         {
-            if (editCategoryData != null)
+            if (editProductData != null)
             {
-                var editCategory = await _context.tbl_Product.Where(_ => _.Id == editCategoryData.Id).FirstOrDefaultAsync();
-                if (editCategory == null) { return null; }
+                var editProduct = await _context.tbl_Product.Where(_ => _.Id == editProductData.Id).FirstOrDefaultAsync();
+                if (editProduct == null) { return null; }
 
-                Product employeedataupdate = _mapper.Map(editCategoryData, editCategory);
+                Product employeedataupdate = _mapper.Map(editProductData, editProduct);
                 if (employeedataupdate == null) { return null; }
                 _context.Entry(employeedataupdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
@@ -252,12 +252,24 @@ namespace ECommerceWebAPI.Services
             {
                 if (addUser == null) return null;
 
-                User category = _mapper.Map<User>(addUser);
-                category.IsActive = true;
-                category.CreatedDate = DateTime.Now;
-                await _context.tbl_User.AddAsync(category);
+                User user = _mapper.Map<User>(addUser);
+                user.IsActive = true;
+                user.CustomerGuid= Guid.NewGuid();
+                user.CreatedDate = DateTime.Now;
+                await _context.tbl_User.AddAsync(user);
                 await _context.SaveChangesAsync();
-                return _mapper.Map<CreateUserDTO>(category);
+
+                var URole = await _context.tbl_User.Where(_ => _.CustomerGuid == user.CustomerGuid).FirstOrDefaultAsync();
+                if (URole == null) { return null; }
+                UserRole role = new UserRole();
+                role.RoleId = addUser.RoleId;
+                role.UserId = URole.Id;
+                role.CreatedDate = DateTime.Now;
+                await _context.tbl_UserRole.AddAsync(role);
+                await _context.SaveChangesAsync();
+
+                var UserDTO = _mapper.Map<CreateUserDTO>(user);
+                return UserDTO;
             }
             catch (Exception ex)
             {
@@ -273,14 +285,14 @@ namespace ECommerceWebAPI.Services
             return userDto;
         }
 
-        public async Task<UpdateUserDTO> EditUser(UpdateUserDTO editCategoryData)
+        public async Task<UpdateUserDTO> EditUser(UpdateUserDTO editUserData)
         {
-            if (editCategoryData != null)
+            if (editUserData != null)
             {
-                var editCategory = await _context.tbl_User.Where(_ => _.Id == editCategoryData.Id).FirstOrDefaultAsync();
-                if (editCategory == null) { return null; }
+                var editUser = await _context.tbl_User.Where(_ => _.Id == editUserData.Id).FirstOrDefaultAsync();
+                if (editUser == null) { return null; }
 
-                User employeedataupdate = _mapper.Map(editCategoryData, editCategory);
+                User employeedataupdate = _mapper.Map(editUserData, editUser);
                 if (employeedataupdate == null) { return null; }
                 _context.Entry(employeedataupdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();

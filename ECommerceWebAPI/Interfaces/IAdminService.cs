@@ -7,16 +7,18 @@ namespace ECommerceWebAPI.Interfaces
 {
     public interface IAdminService
     {
+        #region Product
         Task<CreateProductDTO?> AddProduct(CreateProductDTO productData);
 
         Task<GetProductDTO> GetByProductId(int productId);
 
-        Task<UpdateProductDTO> EditProduct(UpdateProductDTO editCategoryData);
+        Task<UpdateProductDTO> EditProduct(UpdateProductDTO editProductData);
 
         Task<bool> DeleteProduct(int id);
 
         Task<PagedResponse<Product>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId);
 
+        #endregion
 
         #region Category
 
@@ -31,9 +33,10 @@ namespace ECommerceWebAPI.Interfaces
         Task<PagedResponse<Category>> SearchCategory(int pageNumber, int pageSize, string searchKeyword);
 
         Task<List<CategoryDTO>> GetAllCategory();
+
         #endregion
 
-        #region Category
+        #region User
 
         Task<CreateUserDTO?> AddUser(CreateUserDTO addCategory);
 

@@ -1,11 +1,11 @@
 ﻿using ECommerceWebAPI.DTO;
 using ECommerceWebAPI.DTO.Users;
 using ECommerceWebAPI.Interfaces;
+using ECommerceWebAPI.Models;
+using ECommerceWebAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
+
 
 namespace ECommerceWebAPI.Controllers
 {
@@ -13,62 +13,52 @@ namespace ECommerceWebAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAdminService _adminService;
-        private IConfiguration _config;
+        private readonly IAuthService _authService;
+        
 
-        public AuthController(IAdminService adminService, IConfiguration config)
+        public AuthController(IAuthService authService)
         {
-            _adminService = adminService;
-            _config = config;
+            _authService = authService;
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SignUp([FromBody] CreateUserDTO addUser)
+        {
+            try
+            {
+                if ((bool)await _authService.SignUpAsync(addUser))
+                {
+                    return Ok("User registered successfully.");
+                }
+                return BadRequest("User already exists.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login([FromBody] CreateUserDTO login)
+        public async Task<IActionResult> Login([FromBody] SignUpDto authsignUpDTO)
         {
-            IActionResult response = Unauthorized();
-            var user = AuthenticateUser(login);
-
-            if (user != null)
+            try
             {
-                var token = GenerateToken();
-                response = Ok(new JWTTokenResponse
+                var user = await _authService.LoginAsync(authsignUpDTO);
+                if (user != null)
                 {
-                    Token = token
-                });
+                    return Ok("Login successful.");
+                }
+                return Unauthorized("Invalid username or password.");
             }
-
-            return response;
-        }
-
-        private string GenerateToken()
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:IssuerSigningKey"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:ValidIssuer"],
-                audience: _config["Jwt:ValidAudience"],
-                claims: null,
-                notBefore: null,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_config["Jwt:TokenExpiresInMinutes"])),
-                signingCredentials: credentials);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        private CreateUserDTO AuthenticateUser(CreateUserDTO login)
-        {
-            CreateUserDTO user = null;
-
-            //Validate the User Credentials
-            //Demo Purpose, I have Passed HardCoded User Information
-            if (login.UserName == "Jignesh")
+            catch (Exception ex)
             {
-                user = new CreateUserDTO { UserName = "Jignesh Trivedi", Email = "test.btest@gmail.com" };
+                return BadRequest(ex.Message);
             }
-            return user;
         }
+
+        
     }
 
 }
