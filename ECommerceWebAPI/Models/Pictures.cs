@@ -11,13 +11,15 @@ namespace ECommerceWebAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
-        public Product? Product { get; set; }
+        //[Required]
+        //public Product? Product { get; set; }
+        
+        [ForeignKey("Product")]
         public int ProductId { get; set; }
 
         public ProductReview? ProductReview { get; set; }
         public int? ProductReviewId { get; set; }
-        public byte[] ImageData { get; set; }
+        public byte[]? ImageData { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

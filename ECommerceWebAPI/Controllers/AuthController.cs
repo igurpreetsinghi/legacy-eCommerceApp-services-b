@@ -31,7 +31,7 @@ namespace ECommerceWebAPI.Controllers
                 {
                     return Ok("User registered successfully.");
                 }
-                return BadRequest("User already exists.");
+                return Problem("User already exists.");
             }
             catch (Exception ex)
             {

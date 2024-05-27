@@ -23,7 +23,7 @@ namespace ECommerceWebAPI.Controllers
         {
             try
             {
-                var response = await _adminService.SearchProducts(pageNumber, pageSize, searchKeyword, categoryId);
+                var response = await _productService.SearchProducts(pageNumber, pageSize, searchKeyword, categoryId);
                 if (response != null)
                 {
                     return Ok(response);
@@ -44,7 +44,7 @@ namespace ECommerceWebAPI.Controllers
         {
             try
             {
-                var response = await _adminService.GetAllCategory();
+                var response = await _productService.GetAllCategory();
                 if (response != null)
                 {
                     return Ok(response);
@@ -60,13 +60,12 @@ namespace ECommerceWebAPI.Controllers
             }
         }
 
-
         [HttpGet]
-        public async Task<IActionResult> GetProductDetail(int productId)
+        public async Task<IActionResult> GetByProductId(int productId)
         {
             try
             {
-                var response = await _adminService.GetByProductId(productId);
+                var response = await _productService.GetByProductId(productId);
                 if (response != null)
                 {
                     return Ok(response);
@@ -105,7 +104,7 @@ namespace ECommerceWebAPI.Controllers
             }
         }
 
-        #endregion
+        #endregion Product Reviews
 
         #region Wishlist
 

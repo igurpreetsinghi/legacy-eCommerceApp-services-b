@@ -1,7 +1,8 @@
-﻿using ECommerceWebAPI.DTO;
+﻿using ECommerceWebAPI.DTO.Category;
 using ECommerceWebAPI.DTO.Products;
 using ECommerceWebAPI.DTO.Users;
 using ECommerceWebAPI.Interfaces;
+using ECommerceWebAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,139 @@ namespace ECommerceWebAPI.Controllers
         {
             _adminService = adminService;
         }
+
+        #region Category
+
+        [HttpPost]
+        public async Task<IActionResult> AddCategory([FromBody] CreateCategoryDTO addCategoey)
+        {
+            try
+            {
+                var response = await _adminService.AddCategory(addCategoey);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetByCategoryId(int id)
+        {
+            try
+            {
+                var response = await _adminService.GetByCategoryId(id);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditCategory([FromBody] UpdateCategoryDTO editCategory)
+        {
+            try
+            {
+                var response = await _adminService.EditCategory(editCategory);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            try
+            {
+                var response = await _adminService.DeleteCategory(id);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CategoryList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchKeyword = "")
+        {
+            try
+            {
+                var response = await _adminService.SearchCategory(pageNumber, pageSize, searchKeyword);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCategory()
+        {
+            try
+            {
+                var response = await _adminService.GetAllCategory();
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        #endregion
+
+
         #region Products
 
         [HttpPost]
@@ -142,116 +276,6 @@ namespace ECommerceWebAPI.Controllers
 
         #endregion Products
 
-        #region Category
-
-        [HttpPost]
-        public async Task<IActionResult> AddCategory([FromBody] CategoryDTO addCategoey)
-        {
-            try
-            {
-                var response = await _adminService.AddCategory(addCategoey);
-                if (response != null)
-                {
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetByCategoryId(int id)
-        {
-            try
-            {
-                var response = await _adminService.GetByCategoryId(id);
-                if (response != null)
-                {
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> EditCategory([FromBody] CategoryDTO editCategory)
-        {
-            try
-            {
-                var response = await _adminService.EditCategory(editCategory);
-                if (response != null)
-                {
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpDelete]
-        public async Task<IActionResult> DeleteCategory(int id)
-        {
-            try
-            {
-                var response = await _adminService.DeleteCategory(id);
-                if (response != null)
-                {
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> CategoryList([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchKeyword = "")
-        {
-            try
-            {
-                var response = await _adminService.SearchCategory(pageNumber, pageSize, searchKeyword);
-                if (response != null)
-                {
-                    return Ok(response);
-                }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        #endregion
-
         #region User Management
 
 
@@ -260,15 +284,11 @@ namespace ECommerceWebAPI.Controllers
         {
             try
             {
-                var response = await _adminService.AddUser(createUserDTO);
-                if (response != null)
+                if ((bool)await _adminService.AddUser(createUserDTO))
                 {
-                    return Ok(response);
+                    return Ok("User registered successfully.");
                 }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
+                return Problem("User already exists.");
             }
             catch (Exception ex)
             {
@@ -302,15 +322,11 @@ namespace ECommerceWebAPI.Controllers
         {
             try
             {
-                var response = await _adminService.EditUser(updateUserDTO);
-                if (response != null)
+                if ((bool)await _adminService.EditUser(updateUserDTO))
                 {
-                    return Ok(response);
+                    return Ok("User Profile Updated successfully.");
                 }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
+                return Problem("Something went wrong try again later.");
             }
             catch (Exception ex)
             {
@@ -323,15 +339,11 @@ namespace ECommerceWebAPI.Controllers
         {
             try
             {
-                var response = await _adminService.ChangeUserStatus(id);
-                if (response != null)
+                if ((bool)await _adminService.ChangeUserStatus(id))
                 {
-                    return Ok(response);
+                    return Ok("The User's status has been successfully updated.");
                 }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
+                return Problem("Something went wrong try again later.");
             }
             catch (Exception ex)
             {

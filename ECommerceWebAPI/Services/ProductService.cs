@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ECommerceWebAPI.Context;
 using ECommerceWebAPI.DTO;
+using ECommerceWebAPI.DTO.Category;
 using ECommerceWebAPI.DTO.Products;
 using ECommerceWebAPI.Interfaces;
 using ECommerceWebAPI.Models;
@@ -30,102 +31,13 @@ namespace ECommerceWebAPI.Services
         #endregion Ctor
 
         #region Products
-
-        public async Task<CreateProductDTO?> AddProduct(CreateProductDTO productData)
-        {
-            try
-            {
-                if (productData == null) return null;
-
-                Product product = new Product();
-                product.Name = productData.Name;
-                product.Description = productData.Description;
-                product.CategoryId = productData.CategoryId;
-                product.Price = productData.Price;
-                product.CompanyName = productData.CompanyName;
-                product.IsDeleted = false;
-                product.CreatedDate = DateTime.Now;
-                await _context.tbl_Product.AddAsync(product);
-                await _context.SaveChangesAsync();
-
-                foreach (var imageFile in productData.Pictures)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await imageFile.CopyToAsync(memoryStream);
-                        Pictures productImage = new Pictures
-                        {
-                            ProductId = product.Id,
-                            ImageData = memoryStream.ToArray()
-                        };
-                        await _context.tbl_Picture.AddAsync(productImage);
-                        await _context.SaveChangesAsync();
-                    }
-                }
-
-                return productData;
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<GetProductDTO> GetByProductId(int productId)
-        {
-            var product = await _context.tbl_Product.Where(_ => _.Id == productId).FirstOrDefaultAsync();
-
-            if (product == null) return null;
-
-            var productDTO = _mapper.Map<GetProductDTO>(product);
-            var pictures = _context.tbl_Picture.Where(_ => _.ProductId == product.Id).ToList();
-            productDTO.Pictures = _mapper.Map<List<PictureDTO>>(pictures);
-            var cat = await _adminService.GetByCategoryId(product.CategoryId);
-            productDTO.CategoryName = cat?.Name;
-            return productDTO;
-        }
-
-        public async Task<UpdateProductDTO> EditProduct(UpdateProductDTO editCategoryData)
-        {
-            if (editCategoryData != null)
-            {
-                var editCategory = await _context.tbl_Product.Where(_ => _.Id == editCategoryData.Id).FirstOrDefaultAsync();
-                if (editCategory == null) { return null; }
-
-                Product employeedataupdate = _mapper.Map(editCategoryData, editCategory);
-                if (employeedataupdate == null) { return null; }
-                _context.Entry(employeedataupdate).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                return _mapper.Map<UpdateProductDTO>(employeedataupdate);
-
-            }
-            return null;
-        }
-
-        public async Task<bool> DeleteProduct(int id)
-        {
-            bool result = false;
-            var product = await _context.tbl_Product.FindAsync(id);
-
-            if (product != null)
-            {
-                product.UpdatedDate = DateTime.Now;
-                product.IsDeleted = true;
-                _context.Entry(product).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                result = true;
-            }
-            return result;
-        }
-
         public async Task<PagedResponse<Product>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId)
         {
             try
             {
                 List<Product> products = _context.tbl_Product.Where(x => x.IsDeleted == false).ToList();
                 var totalRecords = products.Count;
-                if (categoryId < 0)
+                if (categoryId > 0)
                 {
                     products = products.Where(x => x.CategoryId == categoryId).ToList();
                 }
@@ -143,7 +55,36 @@ namespace ECommerceWebAPI.Services
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<List<CreateCategoryDTO>> GetAllCategory()
+        {
+            var category = await _context.tbl_Category.ToListAsync();
+            if (category == null) return null;
+            List<CreateCategoryDTO> categoryDTO = _mapper.Map<List<CreateCategoryDTO>>(category);
+            return categoryDTO;
+        }
 
+        public async Task<CreateCategoryDTO> GetByCategoryId(int categoryId)
+        {
+            var category = await _context.tbl_Category.Where(_ => _.Id == categoryId).FirstOrDefaultAsync();
+            if (category == null) return null;
+            var categoryDTO = _mapper.Map<CreateCategoryDTO>(category);
+            return categoryDTO;
+        }
+        public async Task<GetProductDTO> GetByProductId(int productId)
+        {
+            var product = await _context.tbl_Product.Where(_ => _.Id == productId).FirstOrDefaultAsync();
+
+            if (product == null) return null;
+
+            var productDTO = _mapper.Map<GetProductDTO>(product);
+            var pictures = _context.tbl_Picture.Where(_ => _.ProductId == product.Id).ToList();
+            productDTO.Pictures = _mapper.Map<List<PictureDTO>>(pictures);
+            var cat = await this.GetByCategoryId(product.CategoryId);
+            productDTO.CategoryName = cat?.Name;
+            return productDTO;
+        }
+
+        #region Product Reviews
         public async Task<List<GetProductReviewDTO>> GetProductReviewByProductId(int productId)
         {
             var product = await _context.tbl_ProductReview.Where(_ => _.Id == productId).FirstOrDefaultAsync();
@@ -155,6 +96,7 @@ namespace ECommerceWebAPI.Services
             return productReviewDTOs;
         }
 
+        #endregion Product Reviews
         public async Task<List<GetProductReviewDTO>> AddProductToWishlist(int productId)
         {
             var product = await _context.tbl_ProductReview.Where(_ => _.Id == productId).FirstOrDefaultAsync();
@@ -165,6 +107,7 @@ namespace ECommerceWebAPI.Services
 
             return productReviewDTOs;
         }
+        
         #endregion Products
 
     }

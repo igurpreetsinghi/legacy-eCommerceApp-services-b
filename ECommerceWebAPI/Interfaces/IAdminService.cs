@@ -1,4 +1,4 @@
-﻿using ECommerceWebAPI.DTO;
+﻿using ECommerceWebAPI.DTO.Category;
 using ECommerceWebAPI.DTO.Products;
 using ECommerceWebAPI.DTO.Users;
 using ECommerceWebAPI.Models;
@@ -7,7 +7,24 @@ namespace ECommerceWebAPI.Interfaces
 {
     public interface IAdminService
     {
-        #region Product
+
+        #region Category Management
+
+        Task<CreateCategoryDTO?> AddCategory(CreateCategoryDTO addCategory);
+
+        Task<UpdateCategoryDTO> EditCategory(UpdateCategoryDTO editCategoryData);
+
+        Task<CreateCategoryDTO> GetByCategoryId(int categoryId);
+
+        Task<bool> DeleteCategory(int id);
+
+        Task<PagedResponse<Category>> SearchCategory(int pageNumber, int pageSize, string searchKeyword);
+
+        Task<List<CreateCategoryDTO>> GetAllCategory();
+
+        #endregion Category Management
+
+        #region Product Management
         Task<CreateProductDTO?> AddProduct(CreateProductDTO productData);
 
         Task<GetProductDTO> GetByProductId(int productId);
@@ -18,33 +35,17 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<PagedResponse<Product>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId);
 
-        #endregion
+        #endregion Management
 
-        #region Category
+        #region User Management
 
-        Task<CategoryDTO?> AddCategory(CategoryDTO addCategory);
+        Task<bool?> AddUser(CreateUserDTO addUser);
 
-        Task<CategoryDTO> EditCategory(CategoryDTO editCategoryData);
+        Task<GetUserDTO> GetByUserId(int userId);
 
-        Task<CategoryDTO> GetByCategoryId(int categoryId);
+        Task<bool?> EditUser(UpdateUserDTO editUserData);
 
-        Task<bool> DeleteCategory(int id);
-
-        Task<PagedResponse<Category>> SearchCategory(int pageNumber, int pageSize, string searchKeyword);
-
-        Task<List<CategoryDTO>> GetAllCategory();
-
-        #endregion
-
-        #region User
-
-        Task<CreateUserDTO?> AddUser(CreateUserDTO addCategory);
-
-        Task<UpdateUserDTO> EditUser(UpdateUserDTO editCategoryData);
-
-        Task<GetUserDTO> GetByUserId(int categoryId);
-
-        Task<bool> ChangeUserStatus(int id);
+        Task<bool?> ChangeUserStatus(int id);
 
         Task<PagedResponse<User>> SearchUsers(int pageNumber, int pageSize, string searchKeyword);
 
@@ -52,6 +53,6 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<List<GetUserRoleDTO>> GetUserRoles();
 
-        #endregion
+        #endregion Management
     }
 }

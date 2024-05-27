@@ -61,7 +61,7 @@ namespace ECommerceWebAPI.Context
                 .Property(b => b.CreatedDate)
                 .HasDefaultValueSql("getdate()");
 
-            modelBuilder.Entity<Pictures>().HasOne(_ => _.Product).WithMany(_ => _.Pictures).HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.ClientCascade);
+            //modelBuilder.Entity<Pictures>().HasOne(_ => _.Product).WithMany(_ => _.Pictures).HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<Pictures>().HasOne(_ => _.ProductReview).WithMany(_ => _.Pictures).HasForeignKey(_ => _.ProductReviewId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<Pictures>()
                 .Property(b => b.CreatedDate)

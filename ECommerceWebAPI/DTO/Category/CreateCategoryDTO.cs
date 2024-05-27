@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceWebAPI.DTO
+namespace ECommerceWebAPI.DTO.Category
 {
-    public class CategoryDTO
+    public class CreateCategoryDTO
     {
-        public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }

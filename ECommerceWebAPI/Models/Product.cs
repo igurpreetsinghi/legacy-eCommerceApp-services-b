@@ -35,8 +35,8 @@ namespace ECommerceWebAPI.Models
         [Required]
         public List<ShoppingCart>? ShoppingCart { get; set; }
 
-        [Required]
-        public List<Pictures>? Pictures { get; set; }
+        //[Required]
+        //public List<Pictures>? Pictures { get; set; }
 
         [Required]
         public List<ProductReview>? ProductReview { get; set; }

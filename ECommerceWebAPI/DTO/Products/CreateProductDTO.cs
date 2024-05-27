@@ -22,6 +22,7 @@ namespace ECommerceWebAPI.DTO.Products
         public decimal Price { get; set; }
 
         [Required]
-        public List<IFormFile> Pictures { get; set; }
+        //public List<IFormFile> Pictures { get; set; }
+        public IFormFile Pictures { get; set; }
     }
 }
