@@ -357,7 +357,7 @@ namespace ECommerceWebAPI.Services
 
                 _context.Entry(editRole).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-               
+
                 return true;
             }
             return false;
@@ -371,7 +371,7 @@ namespace ECommerceWebAPI.Services
             if (editUser != null)
             {
                 editUser.UpdatedDate = DateTime.Now;
-                if(editUser.IsActive == false)
+                if (editUser.IsActive == false)
                 {
                     editUser.IsActive = true;
                 }
@@ -409,7 +409,7 @@ namespace ECommerceWebAPI.Services
 
         public async Task<GetUserDTO> GetUserByEmailId(string emailId)
         {
-            var user = await _context.tbl_User.Where(_ => _.Email == emailId && _.IsActive == true).FirstOrDefaultAsync();
+            var user = await _context.tbl_User.Include(x => x.UserRoles).Where(_ => _.Email == emailId && _.IsActive == true).FirstOrDefaultAsync();
             if (user == null) return null;
             var categoryDTO = _mapper.Map<GetUserDTO>(user);
             return categoryDTO;

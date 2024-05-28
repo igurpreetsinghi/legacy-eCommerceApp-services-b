@@ -20,11 +20,11 @@ namespace ECommerceWebAPI.Profiles
 
             CreateMap<Pictures, PictureDTO>().ReverseMap();
 
+            CreateMap<GetUserRoleDTO, Role>().ReverseMap();
+            CreateMap<UserRoleDTO, UserRole>().ReverseMap();
             CreateMap<CreateUserDTO, User>().ReverseMap();
             CreateMap<UpdateUserDTO, User>().ReverseMap();
-            CreateMap<User, GetUserDTO>().ReverseMap();
-
-            CreateMap<Role, GetUserRoleDTO>().ReverseMap();
+            CreateMap<GetUserDTO, User>().ReverseMap();
 
             CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
 
