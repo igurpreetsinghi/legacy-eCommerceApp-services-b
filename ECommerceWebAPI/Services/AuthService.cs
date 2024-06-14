@@ -54,15 +54,6 @@ namespace ECommerceWebAPI.Services
                 await _context.tbl_User.AddAsync(user);
                 await _context.SaveChangesAsync();
 
-                var URole = await _context.tbl_User.Where(_ => _.CustomerGuid == user.CustomerGuid).FirstOrDefaultAsync();
-                if (URole == null) { return null; }
-                UserRole role = new UserRole();
-                role.RoleId = addUser.RoleId;
-                role.UserId = URole.Id;
-                role.CreatedDate = DateTime.Now;
-                await _context.tbl_UserRole.AddAsync(role);
-                await _context.SaveChangesAsync();
-
                 var UserDTO = _mapper.Map<CreateUserDTO>(user);
                 return true;
             }

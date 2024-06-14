@@ -17,7 +17,5 @@ namespace ECommerceWebAPI.Models
 
         public bool IsDeleted { get; set; }
 
-        [Required]
-        public List<UserRole>? UserRoles { get; set; }
     }
 }

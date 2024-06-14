@@ -56,11 +56,11 @@ namespace ECommerceWebAPI.Services
             }
         }
 
-        public async Task<CreateCategoryDTO> GetByCategoryId(int categoryId)
+        public async Task<UpdateCategoryDTO> GetByCategoryId(int categoryId)
         {
-            var category = await _context.tbl_Category.Where(_ => _.Id == categoryId).FirstOrDefaultAsync();
+            var category = await _context.tbl_Category.Where(_ => _.Id == categoryId && _.IsDeleted == false).FirstOrDefaultAsync();
             if (category == null) return null;
-            var categoryDTO = _mapper.Map<CreateCategoryDTO>(category);
+            var categoryDTO = _mapper.Map<UpdateCategoryDTO>(category);
             return categoryDTO;
         }
 
@@ -119,11 +119,11 @@ namespace ECommerceWebAPI.Services
             }
         }
 
-        public async Task<List<CreateCategoryDTO>> GetAllCategory()
+        public async Task<List<UpdateCategoryDTO>> GetAllCategory()
         {
-            var category = await _context.tbl_Category.ToListAsync();
+            var category = await _context.tbl_Category.Where(_ => _.IsDeleted == false).ToListAsync();
             if (category == null) return null;
-            List<CreateCategoryDTO> categoryDTO = _mapper.Map<List<CreateCategoryDTO>>(category);
+            List<UpdateCategoryDTO> categoryDTO = _mapper.Map<List<UpdateCategoryDTO>>(category);
             return categoryDTO;
         }
 
@@ -143,39 +143,16 @@ namespace ECommerceWebAPI.Services
                 product.CategoryId = productData.CategoryId;
                 product.Price = productData.Price;
                 product.CompanyName = productData.CompanyName;
+                using (var memoryStream = new MemoryStream())
+                {
+                    await productData.Pictures.CopyToAsync(memoryStream);
+
+                    product.ImageData = memoryStream.ToArray();
+                };
                 product.IsDeleted = false;
                 product.CreatedDate = DateTime.Now;
                 await _context.tbl_Product.AddAsync(product);
                 await _context.SaveChangesAsync();
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    await productData.Pictures.CopyToAsync(memoryStream);
-                    Pictures productImage = new Pictures
-                    {
-                        ProductId = product.Id,
-                        ImageData = memoryStream.ToArray(),
-                        CreatedDate = DateTime.Now
-                    };
-                    await _context.tbl_Picture.AddAsync(productImage);
-                    await _context.SaveChangesAsync();
-                }
-
-                //foreach (var imageFile in productData.Pictures)
-                //{
-                //    using (var memoryStream = new MemoryStream())
-                //    {
-                //        await imageFile.CopyToAsync(memoryStream);
-                //        Pictures productImage = new Pictures
-                //        {
-                //            ProductId = product.Id,
-                //            ImageData = memoryStream.ToArray(),
-                //            CreatedDate = DateTime.Now
-                //        };
-                //        await _context.tbl_Picture.AddAsync(productImage);
-                //        await _context.SaveChangesAsync();
-                //    }
-                //}
 
                 return productData;
 
@@ -188,13 +165,11 @@ namespace ECommerceWebAPI.Services
 
         public async Task<GetProductDTO> GetByProductId(int productId)
         {
-            var product = await _context.tbl_Product.Where(_ => _.Id == productId).FirstOrDefaultAsync();
+            var product = await _context.tbl_Product.Where(_ => _.Id == productId && _.IsDeleted == false).FirstOrDefaultAsync();
 
             if (product == null) return null;
 
             var productDTO = _mapper.Map<GetProductDTO>(product);
-            var pictures = _context.tbl_Picture.Where(_ => _.ProductId == product.Id).ToList();
-            productDTO.Pictures = _mapper.Map<List<PictureDTO>>(pictures);
             var cat = await this.GetByCategoryId(product.CategoryId);
             productDTO.CategoryName = cat?.Name;
             return productDTO;
@@ -212,25 +187,6 @@ namespace ECommerceWebAPI.Services
                 employeedataupdate.UpdatedDate = DateTime.Now;
                 _context.Entry(employeedataupdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
-
-                var editPic = await _context.tbl_Picture.Where(_ => _.ProductId == editProductData.Id).FirstOrDefaultAsync();
-                if (editPic == null) { return null; }
-
-                if (editProductData.Pictures != null)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await editProductData.Pictures.CopyToAsync(memoryStream);
-
-                        editPic.Id = editPic.Id;
-                        editPic.ProductId = editPic.ProductId;
-                        editPic.ImageData = memoryStream.ToArray();
-                        editPic.UpdatedDate = DateTime.Now;
-
-                        _context.Entry(editPic).State = EntityState.Modified;
-                        await _context.SaveChangesAsync();
-                    }
-                }
 
 
 
@@ -256,11 +212,11 @@ namespace ECommerceWebAPI.Services
             return result;
         }
 
-        public async Task<PagedResponse<Product>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId)
+        public async Task<PagedResponse<GetProductDTO>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId)
         {
             try
             {
-                List<Product> products = _context.tbl_Product.Where(x => x.IsDeleted == false).ToList();
+                List<Product> products = _context.tbl_Product.Include(x => x.Category).Where(p => p.IsDeleted == false).ToList();
                 var totalRecords = products.Count;
                 if (categoryId < 0)
                 {
@@ -272,7 +228,9 @@ namespace ECommerceWebAPI.Services
                 }
                 products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-                var pagedResponse = new PagedResponse<Product>(products, pageNumber, pageSize, totalRecords);
+                var productDTO = _mapper.Map<IEnumerable<GetProductDTO>>(products).ToList();
+
+                var pagedResponse = new PagedResponse<GetProductDTO>(productDTO, pageNumber, pageSize, totalRecords);
                 return pagedResponse;
             }
             catch (Exception ex)
@@ -303,15 +261,6 @@ namespace ECommerceWebAPI.Services
                 user.CustomerGuid = Guid.NewGuid();
                 user.CreatedDate = DateTime.Now;
                 await _context.tbl_User.AddAsync(user);
-                await _context.SaveChangesAsync();
-
-                var URole = await _context.tbl_User.Where(_ => _.CustomerGuid == user.CustomerGuid).FirstOrDefaultAsync();
-                if (URole == null) { return null; }
-                UserRole role = new UserRole();
-                role.RoleId = addUser.RoleId;
-                role.UserId = URole.Id;
-                role.CreatedDate = DateTime.Now;
-                await _context.tbl_UserRole.AddAsync(role);
                 await _context.SaveChangesAsync();
 
                 var UserDTO = _mapper.Map<CreateUserDTO>(user);
@@ -345,18 +294,6 @@ namespace ECommerceWebAPI.Services
                 _context.Entry(employeedataupdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
                 _mapper.Map<UpdateUserDTO>(employeedataupdate);
-
-
-                var editRole = await _context.tbl_UserRole.Where(_ => _.UserId == editUserData.Id).FirstOrDefaultAsync();
-                if (editRole == null) { return null; }
-
-                editRole.Id = editRole.Id;
-                editRole.RoleId = editUserData.RoleId;
-                editRole.UserId = editUserData.Id;
-                editRole.UpdatedDate = DateTime.Now;
-
-                _context.Entry(editRole).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
 
                 return true;
             }
@@ -409,7 +346,7 @@ namespace ECommerceWebAPI.Services
 
         public async Task<GetUserDTO> GetUserByEmailId(string emailId)
         {
-            var user = await _context.tbl_User.Include(x => x.UserRoles).Where(_ => _.Email == emailId && _.IsActive == true).FirstOrDefaultAsync();
+            var user = await _context.tbl_User.Where(_ => _.Email == emailId && _.IsActive == true).FirstOrDefaultAsync();
             if (user == null) return null;
             var categoryDTO = _mapper.Map<GetUserDTO>(user);
             return categoryDTO;

@@ -14,13 +14,13 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<UpdateCategoryDTO> EditCategory(UpdateCategoryDTO editCategoryData);
 
-        Task<CreateCategoryDTO> GetByCategoryId(int categoryId);
+        Task<UpdateCategoryDTO> GetByCategoryId(int categoryId);
 
         Task<bool> DeleteCategory(int id);
 
         Task<PagedResponse<Category>> SearchCategory(int pageNumber, int pageSize, string searchKeyword);
 
-        Task<List<CreateCategoryDTO>> GetAllCategory();
+        Task<List<UpdateCategoryDTO>> GetAllCategory();
 
         #endregion Category Management
 
@@ -33,7 +33,7 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<bool> DeleteProduct(int id);
 
-        Task<PagedResponse<Product>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId);
+        Task<PagedResponse<GetProductDTO>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId);
 
         #endregion Management
 

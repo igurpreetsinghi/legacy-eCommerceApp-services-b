@@ -22,14 +22,14 @@ namespace ECommerceWebAPI.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
+        public Role Role { get; set; }
+        public int RoleId { get; set; }
+
         public bool IsActive { get; set; }
 
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
-
-        public Address? Address { get; set; }
-        public int? AddressId { get; set; }
 
         [Required]
         public List<OrderItem>? OrderItems { get; set; }
@@ -37,7 +37,6 @@ namespace ECommerceWebAPI.Models
         [Required]
         public List<ShoppingCart>? ShoppingCart { get; set; }
 
-        [Required]
-        public List<UserRole>? UserRoles { get; set; }
+        public List<Address>? Address { get; set; }
     }
 }

@@ -24,6 +24,9 @@ namespace ECommerceWebAPI.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
+        [Required]
+        public byte[]? ImageData { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public DateTime CreatedDate { get; set; }
@@ -35,10 +38,10 @@ namespace ECommerceWebAPI.Models
         [Required]
         public List<ShoppingCart>? ShoppingCart { get; set; }
 
-        //[Required]
-        //public List<Pictures>? Pictures { get; set; }
-
         [Required]
         public List<ProductReview>? ProductReview { get; set; }
+
+        [Required]
+        public List<ProductWishlist>? ProductWishlist { get; set; }
     }
 }

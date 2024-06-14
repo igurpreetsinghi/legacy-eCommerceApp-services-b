@@ -12,7 +12,8 @@ namespace ECommerceWebAPI.Models
         public int Id { get; set; }
 
         [Required]
-        public List<User>? User { get; set; }
+        public User? User { get; set; }
+        public int UserId { get; set; }
 
         public string Email { get; set; }
 

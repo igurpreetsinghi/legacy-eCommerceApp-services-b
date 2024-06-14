@@ -23,9 +23,12 @@ namespace ECommerceWebAPI.Models
         public User? User { get; set; }
         public int UserId { get; set; }
 
+        public int Rating { get; set; }
+
+        public byte[]? ImageData { get; set; }
+
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
-        public List<Pictures>? Pictures { get; set; }
     }
 }

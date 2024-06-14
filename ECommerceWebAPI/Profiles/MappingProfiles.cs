@@ -16,15 +16,23 @@ namespace ECommerceWebAPI.Profiles
 
             CreateMap<CreateProductDTO, Product>().ReverseMap();
             CreateMap<UpdateProductDTO, Product>().ReverseMap();
-            CreateMap<Product, GetProductDTO>().ReverseMap();
-
-            CreateMap<Pictures, PictureDTO>().ReverseMap();
+            CreateMap<GetProductDTO, Product>().ReverseMap().ForMember(dest => dest.CategoryName, x => x.MapFrom(src => src.Category.Name));
 
             CreateMap<GetUserRoleDTO, Role>().ReverseMap();
-            CreateMap<UserRoleDTO, UserRole>().ReverseMap();
             CreateMap<CreateUserDTO, User>().ReverseMap();
             CreateMap<UpdateUserDTO, User>().ReverseMap();
             CreateMap<GetUserDTO, User>().ReverseMap();
+
+            CreateMap<AddProductToWishlistDTO, ProductWishlist>().ReverseMap();
+            CreateMap<YourWishlistDTO, ProductWishlist>().ReverseMap();
+
+            CreateMap<AddShippingAddressDTO, Address>().ReverseMap();
+            CreateMap<GetShippingAddressDTO, Address>().ReverseMap();
+            CreateMap<UpdateShippingAddressDTO, Address>().ReverseMap();
+
+            CreateMap<AddProductToCartDTO, ShoppingCart>().ReverseMap();
+            CreateMap<GetYourCartDTO, ShoppingCart>().ReverseMap();
+            CreateMap<UpdateCartItemQuantityDTO, ShoppingCart>().ReverseMap();
 
             CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
 

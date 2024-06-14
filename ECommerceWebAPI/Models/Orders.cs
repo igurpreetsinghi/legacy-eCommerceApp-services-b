@@ -17,9 +17,9 @@ namespace ECommerceWebAPI.Models
 
         public int BillingAddressId { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal OrderTax { get; set; }
+        public decimal? OrderTax { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
-        public decimal OrderDiscount { get; set; }
+        public decimal? OrderDiscount { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal OrderTotal { get; set; }
         [Required]

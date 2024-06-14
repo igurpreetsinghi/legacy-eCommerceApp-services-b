@@ -11,8 +11,6 @@ namespace ECommerceWebAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int ShoppingCartType { get; set; }
-
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
         public int ProductId { get; set; }
@@ -21,7 +19,7 @@ namespace ECommerceWebAPI.Models
         public User User { get; set; }
         public int UserId { get; set; }
 
-        public string Quantity { get; set; }
+        public int Quantity { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

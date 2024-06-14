@@ -6,34 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ECommerceWebAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class MyDBMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "tbl_Address",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PINCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tbl_Address", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "tbl_Category",
                 columns: table => new
@@ -41,7 +18,6 @@ namespace ECommerceWebAPI.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -60,8 +36,8 @@ namespace ECommerceWebAPI.Migrations
                     OrderGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     BillingAddressId = table.Column<int>(type: "int", nullable: false),
-                    OrderTax = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    OrderDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    OrderTax = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    OrderDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     OrderTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -87,32 +63,6 @@ namespace ECommerceWebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tbl_User",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AddressId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tbl_User", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_tbl_User_tbl_Address_AddressId",
-                        column: x => x.AddressId,
-                        principalTable: "tbl_Address",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "tbl_Product",
                 columns: table => new
                 {
@@ -123,6 +73,7 @@ namespace ECommerceWebAPI.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -138,26 +89,56 @@ namespace ECommerceWebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tbl_User_Role_Intermidate",
+                name: "tbl_User",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tbl_User_Role_Intermidate", x => x.Id);
+                    table.PrimaryKey("PK_tbl_User", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tbl_User_Role_Intermidate_tbl_Role_RoleId",
+                        name: "FK_tbl_User_tbl_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "tbl_Role",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "tbl_Address",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PINCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tbl_Address", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tbl_User_Role_Intermidate_tbl_User_UserId",
+                        name: "FK_tbl_Address_tbl_User_UserId",
                         column: x => x.UserId,
                         principalTable: "tbl_User",
                         principalColumn: "Id");
@@ -207,6 +188,8 @@ namespace ECommerceWebAPI.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -227,15 +210,42 @@ namespace ECommerceWebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "tbl_ProductWishlist",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    InWishlist = table.Column<bool>(type: "bit", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tbl_ProductWishlist", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_tbl_ProductWishlist_tbl_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "tbl_Product",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_tbl_ProductWishlist_tbl_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "tbl_User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "tbl_ShoppingCart",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShoppingCartType = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -254,32 +264,10 @@ namespace ECommerceWebAPI.Migrations
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "tbl_Pictures",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    ProductReviewId = table.Column<int>(type: "int", nullable: true),
-                    ImageData = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tbl_Pictures", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_tbl_Pictures_tbl_ProductReview_ProductReviewId",
-                        column: x => x.ProductReviewId,
-                        principalTable: "tbl_ProductReview",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_tbl_Pictures_tbl_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "tbl_Product",
-                        principalColumn: "Id");
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_tbl_Address_UserId",
+                table: "tbl_Address",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_tbl_OrderItem_OrderId",
@@ -297,16 +285,6 @@ namespace ECommerceWebAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tbl_Pictures_ProductId",
-                table: "tbl_Pictures",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tbl_Pictures_ProductReviewId",
-                table: "tbl_Pictures",
-                column: "ProductReviewId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_tbl_Product_CategoryId",
                 table: "tbl_Product",
                 column: "CategoryId");
@@ -322,6 +300,16 @@ namespace ECommerceWebAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_tbl_ProductWishlist_ProductId",
+                table: "tbl_ProductWishlist",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_tbl_ProductWishlist_UserId",
+                table: "tbl_ProductWishlist",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_tbl_ShoppingCart_ProductId",
                 table: "tbl_ShoppingCart",
                 column: "ProductId");
@@ -332,44 +320,31 @@ namespace ECommerceWebAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tbl_User_AddressId",
+                name: "IX_tbl_User_RoleId",
                 table: "tbl_User",
-                column: "AddressId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tbl_User_Role_Intermidate_RoleId",
-                table: "tbl_User_Role_Intermidate",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_tbl_User_Role_Intermidate_UserId",
-                table: "tbl_User_Role_Intermidate",
-                column: "UserId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "tbl_Address");
+
+            migrationBuilder.DropTable(
                 name: "tbl_OrderItem");
-
-            migrationBuilder.DropTable(
-                name: "tbl_Pictures");
-
-            migrationBuilder.DropTable(
-                name: "tbl_ShoppingCart");
-
-            migrationBuilder.DropTable(
-                name: "tbl_User_Role_Intermidate");
-
-            migrationBuilder.DropTable(
-                name: "tbl_Orders");
 
             migrationBuilder.DropTable(
                 name: "tbl_ProductReview");
 
             migrationBuilder.DropTable(
-                name: "tbl_Role");
+                name: "tbl_ProductWishlist");
+
+            migrationBuilder.DropTable(
+                name: "tbl_ShoppingCart");
+
+            migrationBuilder.DropTable(
+                name: "tbl_Orders");
 
             migrationBuilder.DropTable(
                 name: "tbl_Product");
@@ -381,7 +356,7 @@ namespace ECommerceWebAPI.Migrations
                 name: "tbl_Category");
 
             migrationBuilder.DropTable(
-                name: "tbl_Address");
+                name: "tbl_Role");
         }
     }
 }

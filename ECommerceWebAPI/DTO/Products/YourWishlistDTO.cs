@@ -3,21 +3,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ECommerceWebAPI.DTO.Products
 {
-    public class GetProductDTO
+    public class YourWishlistDTO
     {
         public int Id { get; set; }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; }
 
+        public int WishlistId { get; set; }
+
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public string CompanyName { get; set; }
 
-        public string Description { get; set; }
-
+        [Required]
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
         public byte[]? ImageData { get; set; }
+
+
     }
 }
