@@ -13,16 +13,12 @@ namespace ECommerceWebAPI.Models
 
         public Guid OrderGuid { get; set; }
 
-        public int CustomerId { get; set; }
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+        public int UserId { get; set; }
 
-        public int BillingAddressId { get; set; }
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal? OrderTax { get; set; }
-        [Column(TypeName = "decimal(18, 2)")]
-        public decimal? OrderDiscount { get; set; }
         [Column(TypeName = "decimal(18, 2)")]
         public decimal OrderTotal { get; set; }
-        [Required]
         public List<OrderItem>? OrderItems { get; set; }
 
         public DateTime CreatedDate { get; set; }

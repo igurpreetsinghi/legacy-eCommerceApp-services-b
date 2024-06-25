@@ -292,10 +292,66 @@ namespace ECommerceWebAPI.Controllers
             }
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DeleteItemFromYourCart(int id)
+        {
+            try
+            {
+                if ((bool)await _productService.DeleteItemFromYourCart(id))
+                {
+                    return Ok("Item Deleted Successfully From Your Cart.");
+                }
+                return Problem("Something went wrong try again later.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         #endregion Cart
 
+        #region Order
 
+        [HttpPost]
+        public async Task<IActionResult> PlaceOrder([FromBody] AddPlaceOrderDTO productOrderData)
+        {
+            try
+            {
+                if ((bool)await _productService.PlaceOrder(productOrderData))
+                {
+                    return Ok("Order placed successfully.");
+                }
+                return Problem("Product already exists.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetYourOrder(int UserId)
+        {
+            try
+            {
+                var response = await _productService.GetYourOrder(UserId);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        #endregion Order
 
     }
 }

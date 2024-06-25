@@ -28,26 +28,6 @@ namespace ECommerceWebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tbl_Orders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    BillingAddressId = table.Column<int>(type: "int", nullable: false),
-                    OrderTax = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    OrderDiscount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    OrderTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tbl_Orders", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "tbl_Role",
                 columns: table => new
                 {
@@ -145,34 +125,22 @@ namespace ECommerceWebAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tbl_OrderItem",
+                name: "tbl_Orders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    OrderGuid = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    OrderTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tbl_OrderItem", x => x.Id);
+                    table.PrimaryKey("PK_tbl_Orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_tbl_OrderItem_tbl_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "tbl_Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_tbl_OrderItem_tbl_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "tbl_Product",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_tbl_OrderItem_tbl_User_UserId",
+                        name: "FK_tbl_Orders_tbl_User_UserId",
                         column: x => x.UserId,
                         principalTable: "tbl_User",
                         principalColumn: "Id");
@@ -264,6 +232,34 @@ namespace ECommerceWebAPI.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "tbl_OrderItem",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "getdate()"),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tbl_OrderItem", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_tbl_OrderItem_tbl_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "tbl_Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_tbl_OrderItem_tbl_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "tbl_Product",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_tbl_Address_UserId",
                 table: "tbl_Address",
@@ -280,8 +276,8 @@ namespace ECommerceWebAPI.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tbl_OrderItem_UserId",
-                table: "tbl_OrderItem",
+                name: "IX_tbl_Orders_UserId",
+                table: "tbl_Orders",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(

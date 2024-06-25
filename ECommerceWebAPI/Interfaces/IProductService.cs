@@ -36,7 +36,16 @@ namespace ECommerceWebAPI.Interfaces
         Task<List<GetYourCartDTO>> GetCartByUserId(int UserId);
 
         Task<bool?> EditCartItemQuantity(UpdateCartItemQuantityDTO editCartQuantityData);
+        Task<bool?> DeleteItemFromYourCart(int id);
 
         #endregion Cart
+
+        #region Order
+
+        Task<bool?> PlaceOrder(AddPlaceOrderDTO productOrderData);
+
+        Task<List<GetYourOrderDTO>> GetYourOrder(int UserId);
+
+        #endregion Order
     }
 }

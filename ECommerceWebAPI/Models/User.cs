@@ -32,7 +32,7 @@ namespace ECommerceWebAPI.Models
         public DateTime? UpdatedDate { get; set; }
 
         [Required]
-        public List<OrderItem>? OrderItems { get; set; }
+        public List<Orders>? Orders { get; set; }
 
         [Required]
         public List<ShoppingCart>? ShoppingCart { get; set; }

@@ -6,7 +6,12 @@ using ECommerceWebAPI.DTO.Products;
 using ECommerceWebAPI.DTO.Users;
 using ECommerceWebAPI.Interfaces;
 using ECommerceWebAPI.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using StackExchange.Redis;
+using System.Data;
 
 namespace ECommerceWebAPI.Services
 {
@@ -17,16 +22,18 @@ namespace ECommerceWebAPI.Services
         private readonly DataContext _context;
         private IMapper _mapper;
         private readonly IAdminService _adminService;
+        private readonly IConfiguration _configuration;
 
         #endregion Fields
 
         #region Ctor
 
-        public ProductService(DataContext dataContext, IMapper mapper, IAdminService adminService)
+        public ProductService(DataContext dataContext, IMapper mapper, IAdminService adminService, IConfiguration configuration)
         {
             _context = dataContext;
             _mapper = mapper;
             _adminService = adminService;
+            _configuration = configuration;
         }
 
         #endregion Ctor
@@ -304,8 +311,151 @@ namespace ECommerceWebAPI.Services
             return false;
         }
 
+        public async Task<bool?> DeleteItemFromYourCart(int id)
+        {
+            bool result = false;
+            var editCart = await _context.tbl_ShoppingCart.FindAsync(id);
+
+            if (editCart != null)
+            {
+                _context.Entry(editCart).State = EntityState.Deleted;
+                await _context.SaveChangesAsync();
+                result = true;
+            }
+            return result;
+        }
 
         #endregion Cart
+
+        #region Order
+        public async Task<bool?> PlaceOrder(AddPlaceOrderDTO productOrderData)
+        {
+            try
+            {
+                if (productOrderData == null) return null;
+
+                if (!await _context.tbl_ShoppingCart.AnyAsync(u => u.UserId == productOrderData.UserId))
+                {
+                    return false;
+                }
+                else
+                {
+                    Orders order = _mapper.Map<Orders>(productOrderData);
+                    order.OrderGuid = Guid.NewGuid();
+                    order.CreatedDate = DateTime.Now;
+                    await _context.tbl_Orders.AddAsync(order);
+                    await _context.SaveChangesAsync();
+
+                    if (order.Id != 0)
+                    {
+                        string connStr = _configuration.GetConnectionString("PgSQLAppCon");
+                        var PGconn = new NpgsqlConnection(connStr);
+                        PGconn.Open();
+
+                        var ShoppingCart = await _context.tbl_ShoppingCart.Where(x => x.UserId == order.UserId).ToListAsync();
+                        if (ShoppingCart == null) return null;
+
+                        if (ShoppingCart != null)
+                        {
+                            foreach (var OrdrItem in ShoppingCart)
+                            {
+                                var item = new OrderItem();
+
+                                item.ProductId = OrdrItem.ProductId;
+                                item.Quantity = OrdrItem.Quantity;
+                                item.OrderId = order.Id;
+                                item.CreatedDate = DateTime.Now;
+                                await _context.tbl_OrderItem.AddAsync(item);
+                                await _context.SaveChangesAsync();
+
+                                var Product = _context.tbl_Product.FirstOrDefault(pd => pd.Id == OrdrItem.ProductId);
+                                if (Product == null) return null;
+                                var ProductDTO = _mapper.Map<GetProductDTO>(Product);
+
+                                NpgsqlCommand cmd = new NpgsqlCommand();
+                                cmd.Connection = PGconn;
+                                cmd.CommandText = "Insert into public.order_details values(@OrderTotal,@Quantity,@OrderId,@ItemPrice,@ItemName,@OrderDate)";
+                                cmd.CommandType = CommandType.Text;
+                                cmd.Parameters.Add(new NpgsqlParameter("@OrderTotal", Convert.ToDecimal(productOrderData.OrderTotal)));
+                                cmd.Parameters.Add(new NpgsqlParameter("@Quantity", OrdrItem.Quantity));
+                                cmd.Parameters.Add(new NpgsqlParameter("@OrderId", order.OrderGuid));
+                                cmd.Parameters.Add(new NpgsqlParameter("@ItemPrice", ProductDTO.Price));
+                                cmd.Parameters.Add(new NpgsqlParameter("@ItemName", ProductDTO.Name));
+                                cmd.Parameters.Add(new NpgsqlParameter("@OrderDate", DateTime.Now));
+                                cmd.ExecuteNonQuery();
+                                cmd.Dispose();
+
+
+                                var editCart = await _context.tbl_ShoppingCart.FindAsync(OrdrItem.Id);
+                                if (editCart != null)
+                                {
+                                    _context.Entry(editCart).State = EntityState.Deleted;
+                                    await _context.SaveChangesAsync();
+                                }
+
+                            }
+                        }
+
+
+
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task<List<GetYourOrderDTO>> GetYourOrder(int UserId)
+        {
+            try
+            {
+
+                List<GetYourOrderDTO> resultList = new List<GetYourOrderDTO>();
+
+                var query = await _context.tbl_Orders.Where(x => x.UserId == UserId).ToListAsync();
+                if (query == null) return null;
+
+                foreach (var result in query)
+                {
+
+                   var orderItems = await _context.tbl_OrderItem.Include(x => x.Product).Where(pd => pd.OrderId == result.Id).ToListAsync();
+
+                    foreach (var item in orderItems)
+                    {
+                        GetYourOrderDTO dto = new GetYourOrderDTO
+                        {
+                            OrderId = result.Id,
+                            UserId = UserId,
+                            ProductId = item.ProductId,
+                            OrderRefNo = result.OrderGuid,
+                            OrderTotal = result.OrderTotal,
+                            OrderDate = result.CreatedDate,
+                            Name = item.Product.Name,
+                            CompanyName = item.Product.CompanyName,
+                            Description = item.Product.Description,
+                            ImageData=item.Product.ImageData
+
+                        };
+                        resultList.Add(dto);
+
+                    }
+                }
+                return resultList;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        #endregion Order
 
     }
 }

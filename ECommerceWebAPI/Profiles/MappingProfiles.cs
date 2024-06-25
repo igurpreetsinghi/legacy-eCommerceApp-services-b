@@ -4,6 +4,7 @@ using ECommerceWebAPI.DTO.Category;
 using ECommerceWebAPI.DTO.Products;
 using ECommerceWebAPI.DTO.Users;
 using ECommerceWebAPI.Models;
+using System.Collections.Generic;
 
 namespace ECommerceWebAPI.Profiles
 {
@@ -33,6 +34,9 @@ namespace ECommerceWebAPI.Profiles
             CreateMap<AddProductToCartDTO, ShoppingCart>().ReverseMap();
             CreateMap<GetYourCartDTO, ShoppingCart>().ReverseMap();
             CreateMap<UpdateCartItemQuantityDTO, ShoppingCart>().ReverseMap();
+
+            CreateMap<AddPlaceOrderDTO, Orders>().ReverseMap();
+            CreateMap<GetYourOrderDTO, OrderItem>().ReverseMap();
 
             CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
 

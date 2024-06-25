@@ -16,9 +16,6 @@ namespace ECommerceWebAPI.Models
         public Product Product { get; set; }
         public int ProductId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
-        public int UserId { get; set; }
 
         [ForeignKey("OrderId")]
         public Orders Order { get; set; }

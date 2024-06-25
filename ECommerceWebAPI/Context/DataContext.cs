@@ -31,7 +31,6 @@ namespace ECommerceWebAPI.Context
                 .HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<OrderItem>().HasOne(_ => _.Order).WithMany(_ => _.OrderItems).HasForeignKey(_ => _.OrderId);
-            modelBuilder.Entity<OrderItem>().HasOne(_ => _.User).WithMany(_ => _.OrderItems).HasForeignKey(_ => _.UserId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<OrderItem>().HasOne(_ => _.Product).WithMany(_ => _.OrderItems).HasForeignKey(_ => _.ProductId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<OrderItem>()
                 .Property(b => b.CreatedDate)
@@ -42,6 +41,7 @@ namespace ECommerceWebAPI.Context
                 .Property(b => b.CreatedDate)
                 .HasDefaultValueSql("getdate()");
 
+            modelBuilder.Entity<Orders>().HasOne(_ => _.User).WithMany(_ => _.Orders).HasForeignKey(_ => _.UserId).OnDelete(DeleteBehavior.ClientCascade);
             modelBuilder.Entity<Orders>()
                 .Property(b => b.CreatedDate)
                 .HasDefaultValueSql("getdate()");

@@ -127,16 +127,11 @@ namespace ECommerceWebAPI.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("tbl_OrderItem");
                 });
@@ -149,25 +144,13 @@ namespace ECommerceWebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BillingAddressId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("OrderDiscount")
-                        .HasColumnType("decimal(18, 2)");
-
                     b.Property<Guid>("OrderGuid")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("OrderTax")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<decimal>("OrderTotal")
                         .HasColumnType("decimal(18, 2)");
@@ -175,7 +158,12 @@ namespace ECommerceWebAPI.Migrations
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("tbl_Orders");
                 });
@@ -435,15 +423,18 @@ namespace ECommerceWebAPI.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("ECommerceWebAPI.Models.User", "User")
-                        .WithMany("OrderItems")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ECommerceWebAPI.Models.Orders", b =>
+                {
+                    b.HasOne("ECommerceWebAPI.Models.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -552,7 +543,7 @@ namespace ECommerceWebAPI.Migrations
                 {
                     b.Navigation("Address");
 
-                    b.Navigation("OrderItems");
+                    b.Navigation("Orders");
 
                     b.Navigation("ShoppingCart");
                 });
