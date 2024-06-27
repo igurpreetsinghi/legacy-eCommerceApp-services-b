@@ -353,5 +353,89 @@ namespace ECommerceWebAPI.Controllers
 
         #endregion Order
 
+        #region Ratings & Reviews
+
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddRatingReviews([FromForm] AddProductReviewDTO addProductReview)
+        {
+            try
+            {
+                if ((bool)await _productService.AddRatingReviews(addProductReview))
+                {
+                    return Ok("Product Review added Successfully.");
+                }
+                return Problem("Product Review already exists.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> EditRatingReviews([FromForm] UpdateProductReviewDTO editProductReviewData)
+        {
+            try
+            {
+                if ((bool)await _productService.EditRatingReviews(editProductReviewData))
+                {
+                    return Ok("Product Review Updated Successfully.");
+                }
+                return Problem("Product Review already exists.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductReviewByOrderItemId(int OrderItemId)
+        {
+            try
+            {
+                var response = await _productService.GetProductReviewByOrderItemId(OrderItemId);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetProductReviewByProductId(int productId)
+        {
+            try
+            {
+                var response = await _productService.GetProductReviewByProductId(productId);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        #endregion Ratings & Reviews
+
     }
 }

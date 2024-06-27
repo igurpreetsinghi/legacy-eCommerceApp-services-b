@@ -93,16 +93,6 @@ namespace ECommerceWebAPI.Services
         }
 
         #endregion Product 
-        public async Task<List<GetProductReviewDTO>> GetProductReviewByProductId(int productId)
-        {
-            var product = await _context.tbl_ProductReview.Where(_ => _.Id == productId).FirstOrDefaultAsync();
-
-            if (product == null) return null;
-
-            List<GetProductReviewDTO> productReviewDTOs = _mapper.Map<List<GetProductReviewDTO>>(product);
-
-            return productReviewDTOs;
-        }
 
         #region Product Wishlist
         public async Task<AddProductToWishlistDTO?> AddProductToWishlist(AddProductToWishlistDTO addProductWishlist)
@@ -423,7 +413,7 @@ namespace ECommerceWebAPI.Services
                 foreach (var result in query)
                 {
 
-                   var orderItems = await _context.tbl_OrderItem.Include(x => x.Product).Where(pd => pd.OrderId == result.Id).ToListAsync();
+                    var orderItems = await _context.tbl_OrderItem.Include(x => x.Product).Where(pd => pd.OrderId == result.Id).ToListAsync();
 
                     foreach (var item in orderItems)
                     {
@@ -438,7 +428,7 @@ namespace ECommerceWebAPI.Services
                             Name = item.Product.Name,
                             CompanyName = item.Product.CompanyName,
                             Description = item.Product.Description,
-                            ImageData=item.Product.ImageData
+                            ImageData = item.Product.ImageData
 
                         };
                         resultList.Add(dto);
@@ -456,6 +446,113 @@ namespace ECommerceWebAPI.Services
 
 
         #endregion Order
+
+        #region Ratings & Reviews
+        public async Task<bool?> AddRatingReviews(AddProductReviewDTO addProductReview)
+        {
+            try
+            {
+                if (addProductReview == null) return null;
+
+                if (await _context.tbl_ProductReview.AnyAsync(u => u.OrderItemId == addProductReview.OrderItemId))
+                {
+                    return false; // Product Review already exists
+                }
+                ProductReview sReview = _mapper.Map<ProductReview>(addProductReview);
+                if (addProductReview.Pictures != null)
+                { 
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await addProductReview.Pictures.CopyToAsync(memoryStream);
+
+                        sReview.ImageData = memoryStream.ToArray();
+                    };
+                }
+                sReview.CreatedDate = DateTime.Now;
+                await _context.tbl_ProductReview.AddAsync(sReview);
+                await _context.SaveChangesAsync();
+                var sReviewDTO = _mapper.Map<AddProductReviewDTO>(sReview);
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool?> EditRatingReviews(UpdateProductReviewDTO editProductReviewData)
+        {
+            if (editProductReviewData != null)
+            {
+                var editProductReview = await _context.tbl_ProductReview.Where(_ => _.Id == editProductReviewData.Id).FirstOrDefaultAsync();
+                if (editProductReview == null) { return null; }
+
+                ProductReview Reviewdataupdate = _mapper.Map(editProductReviewData, editProductReview);
+                if (Reviewdataupdate == null) { return null; }
+                if (editProductReviewData.Pictures != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await editProductReviewData.Pictures.CopyToAsync(memoryStream);
+
+                        Reviewdataupdate.ImageData = memoryStream.ToArray();
+                    };
+                }
+                Reviewdataupdate.UpdatedDate = DateTime.Now;
+                _context.Entry(Reviewdataupdate).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                var sReviewDTO = _mapper.Map<UpdateProductReviewDTO>(Reviewdataupdate);
+
+            }
+            return true;
+        }
+
+        public async Task<GetProductReviewDTO> GetProductReviewByOrderItemId(int OrderItemId)
+        {
+            var ProductReview = await _context.tbl_ProductReview.Where(_ => _.OrderItemId == OrderItemId).FirstOrDefaultAsync();
+
+            if (ProductReview == null) return null;
+
+            var productDTO = _mapper.Map<GetProductReviewDTO>(ProductReview);
+            return productDTO;
+        }
+
+        public async Task<List<GetProductReviewDTO>> GetProductReviewByProductId(int productId)
+        {
+            try
+            {
+                var ProductReview = await _context.tbl_ProductReview.Where(x => x.ProductId == productId).ToListAsync();
+                if (ProductReview == null) return null;
+
+                var ProductReviewDTOs = ProductReview.Select(pw =>
+                {
+                    var Userdetails = _context.tbl_User.FirstOrDefault(pd => pd.Id == pw.UserId);
+                    var dto = _mapper.Map<GetProductReviewDTO>(pw);
+                    if (Userdetails != null)
+                    {
+                        dto.Description = pw.Description;
+                        dto.Title = pw.Title;
+                        dto.Rating = pw.Rating;
+                        dto.UserName = Userdetails.UserName;
+                        dto.ImageData = pw.ImageData;
+                        dto.ReviewedDate = pw.CreatedDate;
+                    }
+                    return dto;
+                }).ToList();
+
+                return ProductReviewDTOs;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        #endregion Ratings & Reviews
+
 
     }
 }

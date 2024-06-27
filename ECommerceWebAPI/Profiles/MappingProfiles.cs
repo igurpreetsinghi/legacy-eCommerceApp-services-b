@@ -38,6 +38,10 @@ namespace ECommerceWebAPI.Profiles
             CreateMap<AddPlaceOrderDTO, Orders>().ReverseMap();
             CreateMap<GetYourOrderDTO, OrderItem>().ReverseMap();
 
+            CreateMap<AddProductReviewDTO, ProductReview>().ReverseMap();
+            CreateMap<UpdateProductReviewDTO, ProductReview>().ReverseMap();
+            CreateMap<GetProductReviewDTO, ProductReview>().ReverseMap();
+
             CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
 
 

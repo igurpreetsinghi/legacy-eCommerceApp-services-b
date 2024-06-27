@@ -14,7 +14,6 @@ namespace ECommerceWebAPI.Interfaces
         Task<List<UpdateCategoryDTO>> GetAllCategory();
 
         Task<GetProductDTO> GetByProductId(int productId);
-        Task<List<GetProductReviewDTO>> GetProductReviewByProductId(int productId);
 
         Task<AddProductToWishlistDTO?> AddProductToWishlist(AddProductToWishlistDTO addProductWishlist);
 
@@ -47,5 +46,17 @@ namespace ECommerceWebAPI.Interfaces
         Task<List<GetYourOrderDTO>> GetYourOrder(int UserId);
 
         #endregion Order
+
+        #region Ratings & Reviews
+
+        Task<bool?> AddRatingReviews(AddProductReviewDTO addProductReview);
+
+        Task<bool?> EditRatingReviews(UpdateProductReviewDTO editProductReviewData);
+
+        Task<GetProductReviewDTO> GetProductReviewByOrderItemId(int OrderItemId);
+        Task<List<GetProductReviewDTO>> GetProductReviewByProductId(int productId);
+
+
+        #endregion Ratings & Reviews
     }
 }

@@ -3,6 +3,9 @@
     public class GetProductReviewDTO
     {
         public int Id { get; set; }
+        public int OrderItemId { get; set; }
+
+        public int ProductId { get; set; }
 
         public string Title { get; set; }
 
@@ -14,6 +17,7 @@
 
         public int Rating { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        public byte[]? ImageData { get; set; }
+        public DateTime ReviewedDate { get; set; }
     }
 }

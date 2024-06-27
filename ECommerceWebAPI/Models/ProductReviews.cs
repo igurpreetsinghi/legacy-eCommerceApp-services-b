@@ -11,9 +11,9 @@ namespace ECommerceWebAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public Product? Product { get; set; }
@@ -22,6 +22,8 @@ namespace ECommerceWebAPI.Models
         [Required]
         public User? User { get; set; }
         public int UserId { get; set; }
+
+        public int OrderItemId { get; set; }
 
         public int Rating { get; set; }
 

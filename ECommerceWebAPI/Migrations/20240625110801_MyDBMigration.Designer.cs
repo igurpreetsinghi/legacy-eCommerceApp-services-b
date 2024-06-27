@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceWebAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240620132244_MyDBMigration")]
+    [Migration("20240625110801_MyDBMigration")]
     partial class MyDBMigration
     {
         /// <inheritdoc />
@@ -233,11 +233,13 @@ namespace ECommerceWebAPI.Migrations
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("ImageData")
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("OrderItemId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
@@ -246,7 +248,6 @@ namespace ECommerceWebAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedDate")
