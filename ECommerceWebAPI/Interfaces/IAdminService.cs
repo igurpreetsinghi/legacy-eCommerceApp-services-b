@@ -47,7 +47,7 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<bool?> ChangeUserStatus(int id);
 
-        Task<PagedResponse<User>> SearchUsers(int pageNumber, int pageSize, string searchKeyword);
+        Task<PagedResponse<GetUserListDTO>> SearchUsers(int pageNumber, int pageSize, string searchKeyword);
 
         Task<GetUserDTO> GetUserByEmailId(string emailId);
 

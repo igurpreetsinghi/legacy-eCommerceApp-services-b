@@ -11,6 +11,8 @@ namespace ECommerceWebAPI.Interfaces
     {
         Task<PagedResponse<GetProductDTO>> SearchProducts(int pageNumber, int pageSize, string searchKeyword, int categoryId);
 
+        Task<object?> SearchProductList();
+
         Task<List<UpdateCategoryDTO>> GetAllCategory();
 
         Task<GetProductDTO> GetByProductId(int productId);
@@ -21,6 +23,8 @@ namespace ECommerceWebAPI.Interfaces
 
         Task<bool?> RemoveProductWishlist(int id);
 
+        Task<CheckIsProductAvailableInWishlistDTO?> CheckIsProductAvailableInWishlist(int UserId, int productId);
+
         #region Shipping Address
 
         Task<bool?> AddShippingAddress(AddShippingAddressDTO addShippingAddress);
@@ -29,7 +33,7 @@ namespace ECommerceWebAPI.Interfaces
 
         #endregion Shipping Address
 
-        #region Cart
+        #region Shopping Cart
 
         Task<bool?> AddProductToCart(AddProductToCartDTO addToCart);
         Task<List<GetYourCartDTO>> GetCartByUserId(int UserId);
@@ -37,7 +41,9 @@ namespace ECommerceWebAPI.Interfaces
         Task<bool?> EditCartItemQuantity(UpdateCartItemQuantityDTO editCartQuantityData);
         Task<bool?> DeleteItemFromYourCart(int id);
 
-        #endregion Cart
+        Task<bool?> ClearCart(int UserId);
+
+        #endregion Shopping Cart
 
         #region Order
 

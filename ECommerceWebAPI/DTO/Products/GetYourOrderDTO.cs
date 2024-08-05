@@ -17,9 +17,12 @@ namespace ECommerceWebAPI.DTO.Products
         public DateTime OrderDate { get; set; }
 
         public int ProductId { get; set; }
+        public int OrderItemId { get; set; }
 
         public string Name { get; set; }
 
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal Price { get; set; }
         public string Description { get; set; }
         public string CompanyName { get; set; }
 

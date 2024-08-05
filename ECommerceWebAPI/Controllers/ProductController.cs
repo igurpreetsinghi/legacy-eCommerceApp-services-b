@@ -45,6 +45,35 @@ namespace ECommerceWebAPI.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> StoreProducts()
+        {
+            try
+            {
+                var response = await _productService.SearchProductList();
+                if (response != null)
+                {
+                    if (response?.GetType() == typeof(string) && (string)response == "noData")
+                    {
+                        return Ok(new List<object>());
+                    }
+                    else
+                    {
+                        return Ok(response);
+                    }
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
         public async Task<IActionResult> GetAllCategory()
         {
             try
@@ -174,6 +203,27 @@ namespace ECommerceWebAPI.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> CheckIsProductAvailableInWishlist(int UserId, int productId)
+        {
+            try
+            {
+                var response = await _productService.CheckIsProductAvailableInWishlist(UserId, productId);
+                if (response != null)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return BadRequest(new { errormessage = "Something went wrong try again later." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         #endregion Product Wishlist
 
         #region Shipping Address
@@ -235,7 +285,7 @@ namespace ECommerceWebAPI.Controllers
 
         #endregion Shipping Address
 
-        #region Cart
+        #region Shopping Cart
 
         [HttpPost]
         public async Task<IActionResult> AddProductToCart([FromBody] AddProductToCartDTO addToCart)
@@ -309,7 +359,24 @@ namespace ECommerceWebAPI.Controllers
             }
         }
 
-        #endregion Cart
+        [HttpDelete]
+        public async Task<IActionResult> ClearCart(int UserId)
+        {
+            try
+            {
+                if ((bool)await _productService.ClearCart(UserId))
+                {
+                    return Ok("Clear Cart is done Successfully.");
+                }
+                return Problem("Something went wrong try again later.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        #endregion Shopping Cart
 
         #region Order
 

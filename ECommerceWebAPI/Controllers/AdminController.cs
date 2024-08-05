@@ -88,22 +88,20 @@ namespace ECommerceWebAPI.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteCategory(int id)
         {
+
             try
             {
-                var response = await _adminService.DeleteCategory(id);
-                if (response != null)
+                if ((bool)await _adminService.DeleteCategory(id))
                 {
-                    return Ok(response);
+                    return Ok("Category Deleted Successfully.");
                 }
-                else
-                {
-                    return BadRequest(new { errormessage = "Something went wrong try again later." });
-                }
+                return Problem("Something went wrong try again later.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+
         }
 
         [HttpGet]

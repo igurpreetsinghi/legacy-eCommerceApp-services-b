@@ -45,15 +45,16 @@ namespace ECommerceWebAPI.Services
             {
                 List<Product> products = _context.tbl_Product.Include(x => x.Category).Where(x => x.IsDeleted == false).ToList();
                 var totalRecords = products.Count;
+                products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
                 if (categoryId > 0)
                 {
                     products = products.Where(x => x.CategoryId == categoryId && x.IsDeleted == false).ToList();
                 }
                 if (!string.IsNullOrEmpty(searchKeyword))
                 {
-                    products = products.Where(x => x.Name.Contains(searchKeyword)).ToList();
+                    products = products.Where(x => x.Name.ToUpper().Contains(searchKeyword.ToUpper()) || x.Description.ToUpper().Contains(searchKeyword.ToUpper()) || x.CompanyName.ToUpper().Contains(searchKeyword.ToUpper())).ToList();
                 }
-                products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                //products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
                 var productDTO = _mapper.Map<IEnumerable<GetProductDTO>>(products).ToList();
 
@@ -65,6 +66,40 @@ namespace ECommerceWebAPI.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<object?> SearchProductList()
+        {
+            try
+            {
+                List<Product> products = _context.tbl_Product.Include(x => x.Category).Where(x => x.IsDeleted == false).ToList();
+                if (products == null) return null;
+
+                var productDTO = _mapper.Map<IEnumerable<GetProductDTO>>(products).ToList();
+
+
+                //var result = new
+                //{
+                //    TotalCount = totalCount,
+                //    TotalPages = totalPages,
+                //    CurrentPage = pageNumber,
+                //    PageSize = pageSize,
+                //    Products = productDTO
+                //};
+                return productDTO;
+
+                //products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
+                //var productDTO = _mapper.Map<IEnumerable<GetProductDTO>>(products).ToList();
+
+                //var pagedResponse = new PagedResponse<GetProductDTO>(productDTO, pageNumber, pageSize, totalRecords);
+                //return productDTO;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<List<UpdateCategoryDTO>> GetAllCategory()
         {
             var category = await _context.tbl_Category.Where(_ => _.IsDeleted == false).ToListAsync();
@@ -164,6 +199,17 @@ namespace ECommerceWebAPI.Services
             return result;
         }
 
+        public async Task<CheckIsProductAvailableInWishlistDTO?> CheckIsProductAvailableInWishlist(int UserId, int productId)
+        {
+
+            var Wishlist = await _context.tbl_ProductWishlist.Where(_ => _.UserId == UserId && _.ProductId == productId).FirstOrDefaultAsync();
+
+            if (Wishlist == null) return null;
+
+            var WishlistDTO = _mapper.Map<CheckIsProductAvailableInWishlistDTO>(Wishlist);
+            return WishlistDTO;
+        }
+
         #endregion Products Wishlist
 
         #region Shipping Address
@@ -223,7 +269,7 @@ namespace ECommerceWebAPI.Services
 
         #endregion Shipping Address
 
-        #region Cart
+        #region Shopping Cart
         public async Task<bool?> AddProductToCart(AddProductToCartDTO addToCart)
         {
             try
@@ -315,7 +361,23 @@ namespace ECommerceWebAPI.Services
             return result;
         }
 
-        #endregion Cart
+        public async Task<bool?> ClearCart(int UserId)
+        {
+            bool result = false;
+
+            var editCart = await _context.tbl_ShoppingCart.Where(x => x.UserId == UserId).ToListAsync();
+            if (editCart == null) return null;
+
+            foreach (var item in editCart)
+            {
+                _context.Entry(item).State = EntityState.Deleted;
+                await _context.SaveChangesAsync();
+                result = true;
+            }
+            return result;
+        }
+
+        #endregion Shopping Cart
 
         #region Order
         public async Task<bool?> PlaceOrder(AddPlaceOrderDTO productOrderData)
@@ -339,8 +401,8 @@ namespace ECommerceWebAPI.Services
                     if (order.Id != 0)
                     {
                         string connStr = _configuration.GetConnectionString("PgSQLAppCon");
-                        var PGconn = new NpgsqlConnection(connStr);
-                        PGconn.Open();
+                        //var PGconn = new NpgsqlConnection(connStr);
+                        //PGconn.Open();
 
                         var ShoppingCart = await _context.tbl_ShoppingCart.Where(x => x.UserId == order.UserId).ToListAsync();
                         if (ShoppingCart == null) return null;
@@ -362,19 +424,50 @@ namespace ECommerceWebAPI.Services
                                 if (Product == null) return null;
                                 var ProductDTO = _mapper.Map<GetProductDTO>(Product);
 
-                                NpgsqlCommand cmd = new NpgsqlCommand();
-                                cmd.Connection = PGconn;
-                                cmd.CommandText = "Insert into public.order_details values(@OrderTotal,@Quantity,@OrderId,@ItemPrice,@ItemName,@OrderDate)";
-                                cmd.CommandType = CommandType.Text;
-                                cmd.Parameters.Add(new NpgsqlParameter("@OrderTotal", Convert.ToDecimal(productOrderData.OrderTotal)));
-                                cmd.Parameters.Add(new NpgsqlParameter("@Quantity", OrdrItem.Quantity));
-                                cmd.Parameters.Add(new NpgsqlParameter("@OrderId", order.OrderGuid));
-                                cmd.Parameters.Add(new NpgsqlParameter("@ItemPrice", ProductDTO.Price));
-                                cmd.Parameters.Add(new NpgsqlParameter("@ItemName", ProductDTO.Name));
-                                cmd.Parameters.Add(new NpgsqlParameter("@OrderDate", DateTime.Now));
-                                cmd.ExecuteNonQuery();
-                                cmd.Dispose();
+                                //NpgsqlCommand cmd = new NpgsqlCommand();
+                                //cmd.Connection = PGconn;
+                                //cmd.CommandText = "Insert into public.order_details values(@OrderTotal,@Quantity,@OrderId,@ItemPrice,@ItemName,@OrderDate)";
+                                //cmd.CommandType = CommandType.Text;
+                                //cmd.Parameters.Add(new NpgsqlParameter("@OrderTotal", Convert.ToDecimal(productOrderData.OrderTotal)));
+                                //cmd.Parameters.Add(new NpgsqlParameter("@Quantity", OrdrItem.Quantity));
+                                //cmd.Parameters.Add(new NpgsqlParameter("@OrderId", order.OrderGuid));
+                                //cmd.Parameters.Add(new NpgsqlParameter("@ItemPrice", ProductDTO.Price));
+                                //cmd.Parameters.Add(new NpgsqlParameter("@ItemName", ProductDTO.Name));
+                                //cmd.Parameters.Add(new NpgsqlParameter("@OrderDate", DateTime.Now));
+                                //cmd.ExecuteNonQuery();
+                                //cmd.Dispose();
 
+                                using (var connection = new NpgsqlConnection(connStr))
+                                {
+                                    if(connection.State != ConnectionState.Closed)
+                                    { 
+                                    // Open the connection asynchronously
+                                    await connection.OpenAsync();
+
+                                    // Check the connection state
+                                    var connectionState = connection.State;
+
+                                        // Do something based on the connection state
+                                        if (connectionState == ConnectionState.Open)
+                                        {
+                                            // Connection is open
+
+                                            NpgsqlCommand cmd = new NpgsqlCommand();
+                                            cmd.Connection = connection;
+                                            cmd.CommandText = "Insert into public.order_details values(@OrderTotal,@Quantity,@OrderId,@ItemPrice,@ItemName,@OrderDate)";
+                                            cmd.CommandType = CommandType.Text;
+                                            cmd.Parameters.Add(new NpgsqlParameter("@OrderTotal", Convert.ToDecimal(productOrderData.OrderTotal)));
+                                            cmd.Parameters.Add(new NpgsqlParameter("@Quantity", OrdrItem.Quantity));
+                                            cmd.Parameters.Add(new NpgsqlParameter("@OrderId", order.OrderGuid));
+                                            cmd.Parameters.Add(new NpgsqlParameter("@ItemPrice", ProductDTO.Price));
+                                            cmd.Parameters.Add(new NpgsqlParameter("@ItemName", ProductDTO.Name));
+                                            cmd.Parameters.Add(new NpgsqlParameter("@OrderDate", DateTime.Now));
+                                            cmd.ExecuteNonQuery();
+                                            cmd.Dispose();
+                                        }
+
+                                    }
+                                }
 
                                 var editCart = await _context.tbl_ShoppingCart.FindAsync(OrdrItem.Id);
                                 if (editCart != null)
@@ -398,7 +491,6 @@ namespace ECommerceWebAPI.Services
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task<List<GetYourOrderDTO>> GetYourOrder(int UserId)
         {
@@ -426,9 +518,11 @@ namespace ECommerceWebAPI.Services
                             OrderTotal = result.OrderTotal,
                             OrderDate = result.CreatedDate,
                             Name = item.Product.Name,
+                            Price = item.Product.Price,
                             CompanyName = item.Product.CompanyName,
                             Description = item.Product.Description,
-                            ImageData = item.Product.ImageData
+                            ImageData = item.Product.ImageData,
+                            OrderItemId = item.Id
 
                         };
                         resultList.Add(dto);
@@ -460,7 +554,7 @@ namespace ECommerceWebAPI.Services
                 }
                 ProductReview sReview = _mapper.Map<ProductReview>(addProductReview);
                 if (addProductReview.Pictures != null)
-                { 
+                {
                     using (var memoryStream = new MemoryStream())
                     {
                         await addProductReview.Pictures.CopyToAsync(memoryStream);

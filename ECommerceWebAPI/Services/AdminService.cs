@@ -85,6 +85,11 @@ namespace ECommerceWebAPI.Services
         public async Task<bool> DeleteCategory(int id)
         {
             bool result = false;
+
+            var CategoryInProductlst = await _context.tbl_Product.Where(x => x.CategoryId == id && x.IsDeleted == false).ToListAsync();
+            if (CategoryInProductlst.Count > 0) return result;
+
+
             var category = await _context.tbl_Category.FindAsync(id);
 
             if (category != null)
@@ -218,15 +223,18 @@ namespace ECommerceWebAPI.Services
             {
                 List<Product> products = _context.tbl_Product.Include(x => x.Category).Where(p => p.IsDeleted == false).ToList();
                 var totalRecords = products.Count;
+
+                products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+
                 if (categoryId < 0)
                 {
                     products = products.Where(x => x.CategoryId == categoryId).ToList();
                 }
                 if (!string.IsNullOrEmpty(searchKeyword))
                 {
-                    products = products.Where(x => x.Name.Contains(searchKeyword)).ToList();
+                    products = products.Where(x => x.Name.ToUpper().Contains(searchKeyword.ToUpper()) || x.Description.ToUpper().Contains(searchKeyword.ToUpper()) || x.CompanyName.ToUpper().Contains(searchKeyword.ToUpper())).ToList();
                 }
-                products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+                //products = products.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
                 var productDTO = _mapper.Map<IEnumerable<GetProductDTO>>(products).ToList();
 
@@ -289,7 +297,7 @@ namespace ECommerceWebAPI.Services
 
                 User employeedataupdate = _mapper.Map(editUserData, editUser);
                 if (employeedataupdate == null) { return false; }
-                employeedataupdate.Password = BCrypt.Net.BCrypt.HashPassword(editUserData.Password);
+                //employeedataupdate.Password = BCrypt.Net.BCrypt.HashPassword(editUserData.Password);
                 employeedataupdate.UpdatedDate = DateTime.Now;
                 _context.Entry(employeedataupdate).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
@@ -323,19 +331,27 @@ namespace ECommerceWebAPI.Services
             return result;
         }
 
-        public async Task<PagedResponse<User>> SearchUsers(int pageNumber, int pageSize, string searchKeyword)
+        public async Task<PagedResponse<GetUserListDTO>> SearchUsers(int pageNumber, int pageSize, string searchKeyword)
         {
             try
             {
-                List<User> userList = _context.tbl_User.Where(x => x.IsActive == true).ToList();
+                //List<User> userList = _context.tbl_User.Where(x => x.IsActive == true).ToList();
+                List<User> userList = _context.tbl_User.Include(x => x.Role).ToList();
                 var totalRecords = userList.Count;
-                if (!string.IsNullOrEmpty(searchKeyword))
-                {
-                    userList = userList.Where(x => x.UserName.Contains(searchKeyword)).ToList();
-                }
+
                 userList = userList.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-                var pagedResponse = new PagedResponse<User>(userList, pageNumber, pageSize, totalRecords);
+                //var userDTO = _mapper.Map<IEnumerable<GetUserListDTO>>(userList).ToList();
+
+                if (!string.IsNullOrEmpty(searchKeyword))
+                {
+                    userList = userList.Where(x => x.UserName.ToUpper().Contains(searchKeyword.ToUpper()) || x.Email.ToUpper().Contains(searchKeyword.ToUpper())).ToList();
+                }
+                
+
+                var userDTO = _mapper.Map<IEnumerable<GetUserListDTO>>(userList).ToList();
+
+                var pagedResponse = new PagedResponse<GetUserListDTO>(userDTO, pageNumber, pageSize, totalRecords);
                 return pagedResponse;
             }
             catch (Exception ex)
@@ -348,8 +364,12 @@ namespace ECommerceWebAPI.Services
         {
             var user = await _context.tbl_User.Where(_ => _.Email == emailId && _.IsActive == true).FirstOrDefaultAsync();
             if (user == null) return null;
-            var categoryDTO = _mapper.Map<GetUserDTO>(user);
-            return categoryDTO;
+            var UserDTO = _mapper.Map<GetUserDTO>(user);
+
+            var userRoleList = await _context.tbl_Role.Where(x => x.Id == UserDTO.RoleId && x.IsDeleted == false).ToListAsync();
+            if (userRoleList == null) return null;
+            UserDTO.RoleName = userRoleList[0].Name;
+            return UserDTO;
         }
 
         public async Task<List<GetUserRoleDTO>> GetUserRoles()

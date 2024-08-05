@@ -15,9 +15,9 @@ namespace ECommerceWebAPI.DTO.Users
         [Required]
         public string Email { get; set; }
 
-        [Required]
-        [DataType(DataType.Password)]
-        public string Password { get; set; }
+        //[Required]
+        //[DataType(DataType.Password)]
+        //public string Password { get; set; }
 
         [Required]
         public int RoleId { get; set; }
