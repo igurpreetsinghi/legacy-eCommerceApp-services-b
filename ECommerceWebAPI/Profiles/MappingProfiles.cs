@@ -1,0 +1,52 @@
+﻿using AutoMapper;
+using ECommerceWebAPI.DTO;
+using ECommerceWebAPI.DTO.Category;
+using ECommerceWebAPI.DTO.Products;
+using ECommerceWebAPI.DTO.Users;
+using ECommerceWebAPI.Models;
+using System.Collections.Generic;
+
+namespace ECommerceWebAPI.Profiles
+{
+    public class MappingProfiles : Profile
+    {
+        public MappingProfiles()
+        {
+            CreateMap<CreateCategoryDTO, Category>().ReverseMap();
+            CreateMap<UpdateCategoryDTO, Category>().ReverseMap();
+
+            CreateMap<CreateProductDTO, Product>().ReverseMap();
+            CreateMap<UpdateProductDTO, Product>().ReverseMap();
+            CreateMap<GetProductDTO, Product>().ReverseMap().ForMember(dest => dest.CategoryName, x => x.MapFrom(src => src.Category.Name));
+
+            CreateMap<GetUserRoleDTO, Role>().ReverseMap();
+            CreateMap<CreateUserDTO, User>().ReverseMap();
+            CreateMap<UpdateUserDTO, User>().ReverseMap();
+            CreateMap<GetUserDTO, User>().ReverseMap();
+            CreateMap<GetUserListDTO, User>().ReverseMap().ForMember(dest => dest.RoleName, x => x.MapFrom(src => src.Role.Name));
+
+            CreateMap<AddProductToWishlistDTO, ProductWishlist>().ReverseMap();
+            CreateMap<YourWishlistDTO, ProductWishlist>().ReverseMap();
+            CreateMap<CheckIsProductAvailableInWishlistDTO, ProductWishlist>().ReverseMap();
+
+            CreateMap<AddShippingAddressDTO, Address>().ReverseMap();
+            CreateMap<GetShippingAddressDTO, Address>().ReverseMap();
+            CreateMap<UpdateShippingAddressDTO, Address>().ReverseMap();
+
+            CreateMap<AddProductToCartDTO, ShoppingCart>().ReverseMap();
+            CreateMap<GetYourCartDTO, ShoppingCart>().ReverseMap();
+            CreateMap<UpdateCartItemQuantityDTO, ShoppingCart>().ReverseMap();
+
+            CreateMap<AddPlaceOrderDTO, Orders>().ReverseMap();
+            CreateMap<GetYourOrderDTO, OrderItem>().ReverseMap();
+
+            CreateMap<AddProductReviewDTO, ProductReview>().ReverseMap();
+            CreateMap<UpdateProductReviewDTO, ProductReview>().ReverseMap();
+            CreateMap<GetProductReviewDTO, ProductReview>().ReverseMap();
+
+            CreateMap(typeof(PagedResponse<>), typeof(PagedResponseDTO<>));
+
+
+        }
+    }
+}
