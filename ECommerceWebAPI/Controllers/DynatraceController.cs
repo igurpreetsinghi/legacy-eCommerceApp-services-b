@@ -15,35 +15,35 @@ namespace ECommerceWebAPI.Controllers
         }
 
         [HttpGet("ok")]
-        public IActionResult GetOk()
+        public IActionResult GetStatus200OK()
         {
             _logger.LogInformation("Dynatrace health check OK response generated for {TraceId}", HttpContext.TraceIdentifier);
             return Ok(new { message = "Service is reachable", traceId = HttpContext.TraceIdentifier });
         }
 
         [HttpGet("no-content")]
-        public IActionResult GetNoContent()
+        public IActionResult GetStatus204NoContent()
         {
             _logger.LogInformation("Dynatrace no-content response generated for {TraceId}", HttpContext.TraceIdentifier);
             return NoContent();
         }
 
         [HttpGet("not-found")]
-        public IActionResult GetNotFound()
+        public IActionResult GetStatus404NotFound()
         {
             _logger.LogWarning("Dynatrace not-found response generated for {TraceId}", HttpContext.TraceIdentifier);
             return NotFound(new { message = "The requested resource could not be located", traceId = HttpContext.TraceIdentifier });
         }
 
         [HttpGet("forbidden")]
-        public IActionResult GetForbidden()
+        public IActionResult GetStatus403Forbidden()
         {
             _logger.LogWarning("Dynatrace forbidden response generated for {TraceId}", HttpContext.TraceIdentifier);
             return StatusCode(StatusCodes.Status403Forbidden, new { message = "You are not allowed to access this resource", traceId = HttpContext.TraceIdentifier });
         }
 
         [HttpGet("db-error")]
-        public IActionResult GetDatabaseError()
+        public IActionResult GetDbErrorStatus500InternalServerError()
         {
             try
             {
@@ -57,7 +57,7 @@ namespace ECommerceWebAPI.Controllers
         }
 
         [HttpGet("unexpected-error")]
-        public IActionResult GetUnexpectedError()
+        public IActionResult GetStatus500InternalServerError()
         {
             try
             {
