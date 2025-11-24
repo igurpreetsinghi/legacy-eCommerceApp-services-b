@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Serilog;
 
 namespace ECommerceWebAPI
 {
@@ -18,128 +19,161 @@ namespace ECommerceWebAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddAutoMapper(typeof(Program));
+            ConfigureLogging(builder);
+            builder.Host.UseSerilog();
 
-            builder.Services.AddTransient<IAuthService, AuthService>();
-            builder.Services.AddTransient<IAdminService, AdminService>();
-            builder.Services.AddTransient<IProductService, ProductService>();
-
-            builder.Services.AddScoped<ValidationFilterAttribute>();
-
-            //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(options =>
-            //    {
-            //        options.TokenValidationParameters = new TokenValidationParameters
-            //        {
-            //            ValidateIssuer = true,
-            //            ValidateAudience = true,
-            //            ValidateLifetime = true,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
-            //            ValidAudience = builder.Configuration["Jwt:ValidAudience"],
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:IssuerSigningKey"]))
-            //        };
-            //    });
-
-            //builder.Services.AddControllers().AddNewtonsoftJson(option => { option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore; });
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-
-            builder.Services.AddSwaggerGen(options =>
+            try
             {
-                //API description
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Ecom API", Version = "v1" });
+                // Add services to the container.
+                builder.Services.AddAutoMapper(typeof(Program));
 
-                //Auth Definition
-                //options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                //{
-                //    Name = "Authorization",
-                //    Description = "Please enter into field the word 'Bearer' following by space and JWT",
-                //    In = ParameterLocation.Header,
-                //    Type = SecuritySchemeType.ApiKey,
-                //    Scheme = "Bearer"
-                //});
+                builder.Services.AddTransient<IAuthService, AuthService>();
+                builder.Services.AddTransient<IAdminService, AdminService>();
+                builder.Services.AddTransient<IProductService, ProductService>();
 
-                //options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                //{
+                builder.Services.AddScoped<ValidationFilterAttribute>();
+
+                //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                //    .AddJwtBearer(options =>
                 //    {
-                //        new OpenApiSecurityScheme
+                //        options.TokenValidationParameters = new TokenValidationParameters
                 //        {
-                //            Reference = new OpenApiReference
-                //            {
-                //                Type = ReferenceType.SecurityScheme,
-                //                Id = "Bearer"
-                //            },
-                //            Scheme = "oauth2",
-                //            Name = "Bearer",
-                //            In = ParameterLocation.Header
-                //        },
-                //        new List<string>()
-                //    }
-                //});
-            });
+                //            ValidateIssuer = true,
+                //            ValidateAudience = true,
+                //            ValidateLifetime = true,
+                //            ValidateIssuerSigningKey = true,
+                //            ValidIssuer = builder.Configuration["Jwt:ValidIssuer"],
+                //            ValidAudience = builder.Configuration["Jwt:ValidAudience"],
+                //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:IssuerSigningKey"]))
+                //        };
+                //    });
 
-            builder.Services.AddDbContext<DataContext>(option =>
-            {
-                option.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection"));
-            });
+                //builder.Services.AddControllers().AddNewtonsoftJson(option => { option.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore; });
+                // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                builder.Services.AddEndpointsApiExplorer();
 
+                builder.Services.AddSwaggerGen(options =>
+                {
+                    //API description
+                    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Ecom API", Version = "v1" });
 
-            //services cors
-            builder.Services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(
-            builder =>
-            {
-                builder.WithOrigins("*")
-                                    .AllowAnyHeader()
-                                    .AllowAnyMethod();
-            });
-            });
+                    //Auth Definition
+                    //options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    //{
+                    //    Name = "Authorization",
+                    //    Description = "Please enter into field the word 'Bearer' following by space and JWT",
+                    //    In = ParameterLocation.Header,
+                    //    Type = SecuritySchemeType.ApiKey,
+                    //    Scheme = "Bearer"
+                    //});
 
-            builder.Services.AddMvc();
-            // File Attachments 
-            builder.Services.Configure<FormOptions>(o =>
-            {
-                o.ValueLengthLimit = int.MaxValue;
-                o.MultipartBodyLengthLimit = int.MaxValue;
-                o.MemoryBufferThreshold = int.MaxValue;
-            });
+                    //options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    //{
+                    //    {
+                    //        new OpenApiSecurityScheme
+                    //        {
+                    //            Reference = new OpenApiReference
+                    //            {
+                    //                Type = ReferenceType.SecurityScheme,
+                    //                Id = "Bearer"
+                    //            },
+                    //            Scheme = "oauth2",
+                    //            Name = "Bearer",
+                    //            In = ParameterLocation.Header
+                    //        },
+                    //        new List<string>()
+                    //    }
+                    //});
+                });
 
-            //services cors
-
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
-            app.UseSwagger();
-            app.UseSwaggerUI();
-            app.UseHttpsRedirection();
-            app.UseCors();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
+                builder.Services.AddDbContext<DataContext>(option =>
+                {
+                    option.UseSqlServer(builder.Configuration.GetConnectionString("DevConnection"));
+                });
 
 
-            app.MapControllers();
+                //services cors
+                builder.Services.AddCors(options =>
+                {
+                    options.AddDefaultPolicy(
+                builder =>
+                {
+                    builder.WithOrigins("*")
+                                        .AllowAnyHeader()
+                                        .AllowAnyMethod();
+                });
+                });
 
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller}/{action}/{id?}");
-            //To run Automatic migartion
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-                db.Database.Migrate();
+                builder.Services.AddMvc();
+                // File Attachments 
+                builder.Services.Configure<FormOptions>(o =>
+                {
+                    o.ValueLengthLimit = int.MaxValue;
+                    o.MultipartBodyLengthLimit = int.MaxValue;
+                    o.MemoryBufferThreshold = int.MaxValue;
+                });
+
+                //services cors
+
+
+                var app = builder.Build();
+
+                // Configure the HTTP request pipeline.
+                //if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+                //{
+                //    app.UseSwagger();
+                //    app.UseSwaggerUI();
+                //}
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                app.UseHttpsRedirection();
+                app.UseCors();
+
+                app.UseAuthentication();
+                app.UseAuthorization();
+
+
+                app.MapControllers();
+
+                app.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action}/{id?}");
+                //To run Automatic migartion
+                using (var scope = app.Services.CreateScope())
+                {
+                    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    db.Database.Migrate();
+                }
+
+                app.Run();
             }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Application terminated unexpectedly");
+                throw;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
+        }
 
-            app.Run();
+        private static void ConfigureLogging(WebApplicationBuilder builder)
+        {
+            var logDirectory = Path.Combine(builder.Environment.ContentRootPath, "LogFiles");
+            Directory.CreateDirectory(logDirectory);
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.File(
+                    path: Path.Combine(logDirectory, "dynatrace.log"),
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 30,
+                    shared: true,
+                    outputTemplate: "{Timestamp:O} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+                .CreateLogger();
         }
     }
 }
