@@ -24,21 +24,25 @@ jobs:
 
       - name: dotnet publish
         run: |
-          dotnet publish -c Release -o "${{ github.workspace }}/myapp"
-          ls -R "${{ github.workspace }}/myapp"
+          dotnet publish -c Release -o myapp
+          ls -R myapp
 
       - name: Zip artifact
-        run: Compress-Archive -Path "${{ github.workspace }}/myapp" -DestinationPath "${{ github.workspace }}/myapp.zip"
+        run: Compress-Archive -Path myapp -DestinationPath myapp.zip
+
+      - name: Verify zip creation
+        run: Expand-Archive -Path myapp.zip -DestinationPath myapp_verify -Force
 
       - name: Upload artifact to JFrog Artifactory
         run: |
-          curl -f -X PUT \
+          curl -f -L -X PUT \
                -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
-               -T "${{ github.workspace }}/myapp.zip" \
+               -T myapp.zip \
                "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
         shell: bash
         env:
           DOTNET_ROOT: ${{ env.DOTNET_ROOT }}
+
 
   deploy:
     runs-on: windows-latest
@@ -50,9 +54,10 @@ jobs:
     steps:
       - name: Download artifact from JFrog
         run: |
-          curl -f -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
-               -o myapp.zip \
-               "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
+          # curl -f -L -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
+          #      -o myapp.zip \
+          #      "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
+          curl -u s.gurpreet@testingxperts.com:${{ secrets.JFROG_API_KEY }} -L -O "https://trialee1qxw.jfrog.io/artifactory/txecom-be-generic-local/backend-tx-ecm/myapp.zip"
         shell: bash
 
       - name: Debug artifact
@@ -78,4 +83,3 @@ jobs:
           app-name: 'backend-tx-ecm'
           slot-name: Production
           package: myapp
-
