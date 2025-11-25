@@ -23,6 +23,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
+      - name: dotnet publish
         run: |
           dotnet publish -c Release -o "${{ github.workspace }}/myapp"
           ls -R "${{ github.workspace }}/myapp"
@@ -58,7 +59,7 @@ jobs:
       - name: Debug artifact
         run: |
           ls -l myapp.zip
-          head -n 20 myapp.zip
+          unzip -t myapp.zip || cat myapp.zip
         shell: bash
 
       - name: Extract artifact
@@ -78,4 +79,3 @@ jobs:
           app-name: 'backend-tx-ecm'
           slot-name: Production
           package: myapp
-
