@@ -28,7 +28,7 @@ jobs:
           ls -R myapp
 
       - name: Zip artifact
-        run: Compress-Archive -Path myapp -DestinationPath myapp.zip
+        run: Compress-Archive -Path myapp\* -DestinationPath myapp.zip
 
       - name: Verify zip creation
         run: Expand-Archive -Path myapp.zip -DestinationPath myapp_verify -Force
