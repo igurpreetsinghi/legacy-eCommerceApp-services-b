@@ -23,7 +23,10 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{ github.workspace }}/myapp"
+      - name: dotnet publish
+        run: |
+          dotnet publish -c Release -o "${{ github.workspace }}/myapp"
+          ls -R "${{ github.workspace }}/myapp"
 
       - name: Zip artifact
         run: Compress-Archive -Path "${{ github.workspace }}/myapp" -DestinationPath "${{ github.workspace }}/myapp.zip"
@@ -60,7 +63,8 @@ jobs:
         shell: bash
 
       - name: Extract artifact
-        run: Expand-Archive -Path myapp.zip -DestinationPath myapp
+        run: unzip -o myapp.zip -d myapp
+        shell: bash
 
       - name: Login to Azure
         uses: azure/login@v2
