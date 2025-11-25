@@ -23,16 +23,16 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish -c Release -o "${{ github.workspace }}/myapp"
 
       - name: Zip artifact
-        run: Compress-Archive -Path "${{env.DOTNET_ROOT}}/myapp" -DestinationPath "${{env.DOTNET_ROOT}}/myapp.zip"
+        run: Compress-Archive -Path "${{ github.workspace }}/myapp" -DestinationPath "${{ github.workspace }}/myapp.zip"
 
       - name: Upload artifact to JFrog Artifactory
         run: |
           curl -f -X PUT \
                -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
-               -T "${{env.DOTNET_ROOT}}/myapp.zip" \
+               -T "${{ github.workspace }}/myapp.zip" \
                "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
         shell: bash
         env:
@@ -51,6 +51,12 @@ jobs:
           curl -f -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
                -o myapp.zip \
                "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
+        shell: bash
+
+      - name: Debug artifact
+        run: |
+          ls -l myapp.zip
+          head -n 20 myapp.zip
         shell: bash
 
       - name: Extract artifact
