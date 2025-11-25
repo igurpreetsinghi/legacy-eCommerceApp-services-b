@@ -51,6 +51,7 @@ jobs:
           curl -u ${{ secrets.JFROG_USERNAME }}:${{ secrets.JFROG_API_KEY }} \
                -o myapp.zip \
                "${{ secrets.JFROG_URL }}/artifactory/${{ secrets.JFROG_REPO }}/backend-tx-ecm/myapp.zip"
+        shell: bash
 
       - name: Extract artifact
         run: Expand-Archive -Path myapp.zip -DestinationPath myapp
