@@ -25,7 +25,8 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-        
+      - name: Zip artifact
+        run: Compress-Archive -Path "${{env.DOTNET_ROOT}}/myapp" -DestinationPath "${{env.DOTNET_ROOT}}/myapp.zip"
 
       - name: Upload artifact to JFrog Artifactory
         run: |
